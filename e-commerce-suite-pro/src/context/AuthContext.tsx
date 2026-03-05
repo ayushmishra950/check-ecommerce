@@ -143,7 +143,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = useCallback(() => {
     setUser(null)
     localStorage.removeItem('user')
-    localStorage.removeItem('accessToken')
+    localStorage.removeItem('accessToken');
+    window.location.href = "/login"
   }, [])
 
   return (

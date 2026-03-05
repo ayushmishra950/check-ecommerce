@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Search, Filter, Eye, MoreHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,6 +17,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {getAllOrder} from "@/services/service";
+import {formatDate} from "@/services/allFunction";
 
 const orders = [
   { id: '#ORD-001', customer: 'John Doe', email: 'john@example.com', items: 3, total: 299.99, status: 'delivered', date: '2024-01-20' },
@@ -41,13 +43,34 @@ const getStatusVariant = (status: string): "default" | "secondary" | "destructiv
 const AdminOrders = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [orderList, setOrderList] = useState([]);
 
-  const filteredOrders = orders.filter(order => {
-    const matchesSearch = order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.customer.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
+  const filteredOrders = orderList.filter(order => {
+    const matchesSearch = order._id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      order.shippingAddress?.name.toLowerCase().includes(searchQuery.toLowerCase())||
+       order.shippingAddress?.phone.toLowerCase().includes(searchQuery.toLowerCase())||
+        order.shippingAddress?.email.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || order.orderStatus === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  const handleGetOrder = async() => {
+     try{
+       const res = await getAllOrder();
+       console.log(res)
+       if(res.status===200){
+        setOrderList(res.data?.data)
+       }
+     }
+     catch(err){
+      console.log(err);
+     }
+  }
+  useEffect(()=>{
+    handleGetOrder()
+  },[])
+
+  console.log(filteredOrders)
 
   return (
     <div className="space-y-6">
@@ -94,23 +117,23 @@ const AdminOrders = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredOrders.map((order) => (
-                  <tr key={order.id} className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
-                    <td className="py-4 px-6 text-sm font-medium text-foreground">{order.id}</td>
+                {filteredOrders.map((order, i) => (
+                  <tr key={order._id} className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
+                    <td className="py-4 px-6 text-sm font-medium text-foreground">ORD-{new Date().getFullYear()}-{i+1}</td>
                     <td className="py-4 px-6">
                       <div>
-                        <p className="text-sm font-medium text-foreground">{order.customer}</p>
-                        <p className="text-xs text-muted-foreground">{order.email}</p>
+                        <p className="text-sm font-medium text-foreground">{order.shippingAddress?.name}</p>
+                        <p className="text-xs text-muted-foreground">{order.shippingAddress?.name}</p>
                       </div>
                     </td>
-                    <td className="py-4 px-6 text-sm text-muted-foreground">{order.items} items</td>
-                    <td className="py-4 px-6 text-sm font-medium text-foreground">${order.total}</td>
+                    <td className="py-4 px-6 text-sm text-muted-foreground">{order.orderItems?.length} items</td>
+                    <td className="py-4 px-6 text-sm font-medium text-foreground">${order.subtotal}</td>
                     <td className="py-4 px-6">
-                      <Badge variant={getStatusVariant(order.status)}>
-                        {order.status}
+                      <Badge variant={getStatusVariant(order.orderStatus)}>
+                        {order.orderStatus}
                       </Badge>
                     </td>
-                    <td className="py-4 px-6 text-sm text-muted-foreground">{order.date}</td>
+                    <td className="py-4 px-6 text-sm text-muted-foreground">{formatDate(order.createdAt)}</td>
                     <td className="py-4 px-6">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>

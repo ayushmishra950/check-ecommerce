@@ -34,7 +34,7 @@ const {
  *       403:
  *         description: Access denied
  */
-router.get("/", getAllOrders);
+router.get("/get", getAllOrders);
 
 /**
  * @swagger

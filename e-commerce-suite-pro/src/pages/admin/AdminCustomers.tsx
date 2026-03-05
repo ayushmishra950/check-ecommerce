@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Search, Eye, MoreHorizontal, UserX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,6 +17,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {getAllOrder} from "@/services/service";
 
 const customers = [
   {
@@ -66,6 +67,7 @@ const getStatusVariant = (
 const AdminCustomers = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [customerList, setCustomerList] = useState([]);
 
   const filteredCustomers = customers.filter((customer) => {
     const matchesSearch =
@@ -77,6 +79,25 @@ const AdminCustomers = () => {
 
     return matchesSearch && matchesStatus;
   });
+
+
+  
+    const handleGetCustomer = async() => {
+       try{
+         const res = await getAllOrder();
+         console.log(res)
+         if(res.status===200){
+          setCustomerList(res.data?.data)
+         }
+       }
+       catch(err){
+        console.log(err);
+       }
+    }
+    useEffect(()=>{
+      handleGetCustomer()
+    },[])
+  
 
   return (
     <div className="space-y-6">

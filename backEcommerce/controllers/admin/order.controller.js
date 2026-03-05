@@ -32,7 +32,7 @@ const checkAdminRole = async (userId, onlySuperAdmin = false) => {
  */
 const getAllOrders = async (req, res) => {
   try {
-    const { userId } = req.query;
+    const userId = req?.user?.id;
 
     const roleCheck = await checkAdminRole(userId);
     if (!roleCheck.allowed) {
@@ -41,10 +41,9 @@ const getAllOrders = async (req, res) => {
         message: roleCheck.message,
       });
     }
-
-    const orders = await Order.find()
+    const orders = await Order.find({shop:roleCheck?.admin?.shopId})
       .populate("user", "name email")
-      .populate("orderItems.product", "name price");
+      .populate("orderItems.product", "name price").sort({createdAt:-1});
 
     res.status(200).json({
       success: true,

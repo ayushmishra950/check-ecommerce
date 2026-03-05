@@ -8,6 +8,7 @@ type DeleteModalProps = {
   title?: string;
   description?: string;
   isDeleteLoading?: boolean;
+  buttonName:string;
 };
 
 const DeleteModal: React.FC<DeleteModalProps> = ({
@@ -16,7 +17,8 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
   onConfirm,
   title = "Delete Item",
   description = "Are you sure you want to delete this item?",
-  isDeleteLoading
+  isDeleteLoading,
+  buttonName
 }) => {
   if (!isOpen) return null;
 
@@ -46,7 +48,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
             className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700"
           >
             {isDeleteLoading && <Loader2 />}
-           {isDeleteLoading? "Deleting" : "Delete"} 
+           {buttonName} 
           </button>
         </div>
       </div>

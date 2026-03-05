@@ -33,7 +33,7 @@ connectDB();
 // Body parser
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({ origin: "http://localhost:8080", credentials: true }))
+app.use(cors({ origin: ["http://localhost:8080", "http://localhost:8081"], credentials: true }))
 setupSwagger(app);
 
 // User Routes

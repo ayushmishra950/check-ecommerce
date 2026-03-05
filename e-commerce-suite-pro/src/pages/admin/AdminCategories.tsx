@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DropdownMenu, DropdownMenuPortal, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import AddCategoryDialog from "@/form/AddCategoryDialog";
+import AddCategoryDialog from "@/components/form/AddCategoryDialog";
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { getCategory, deleteCategory, categoryStatus } from "@/services/service";
@@ -110,7 +110,7 @@ const AdminCategories = () => {
   return (
     <>
       <AddCategoryDialog isOpen={isOpen} onClose={() => { setIsOpen(false) }} initialData={initialData} setCategoryListRefresh={setCategoryListRefresh} />
-      <DeleteModal isOpen={isDeleteDialogOpen} isDeleteLoading={isDeleteLoading} onClose={() => { setIsDeleteDialogOpen(false) }} onConfirm={handleDeleteCategory} title='Confirm Deletion.' description='This action will permanently delete the category. Are you sure you want to proceed?' />
+      <DeleteModal buttonName='Delete' isOpen={isDeleteDialogOpen} isDeleteLoading={isDeleteLoading} onClose={() => { setIsDeleteDialogOpen(false) }} onConfirm={handleDeleteCategory} title='Confirm Deletion.' description='This action will permanently delete the category. Are you sure you want to proceed?' />
       <div className="space-y-6">
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-4 items-center">

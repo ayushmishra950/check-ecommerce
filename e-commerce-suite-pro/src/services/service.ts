@@ -88,6 +88,17 @@ export const updateAdminData = async (id: string, shopId: string, storeSettings:
 }
 
 
+export const getAllOrder = async() => {
+    const res = await api.get("/api/admin/order/get");
+    return res;
+}
+
+
+export const getAllCustomer = async() => {
+    const res = await api.get("/api/admin/user/get");
+    return res;
+}
+
 
 // User Controllers for Only Users Not Admin==================================
 //===============================================================================
@@ -199,6 +210,13 @@ export const getOrder = async () => {
     const res = await api.get(`/api/user/order/my-orders`);
     return res;
 }
+
+
+export const getOrderById = async () => {
+    const res = await api.get(`/api/user/order/getbyid`);
+    return res;
+}
+
 
 
 export const removeOrder = async (id: string) => {

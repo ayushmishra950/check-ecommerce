@@ -307,9 +307,10 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { getCart, addOrder } from "@/services/service";
+import { getCart, addOrder, getOrderById } from "@/services/service";
 import { calculateDiscount } from "@/services/allFunction";
 import { Loader2 } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 interface ShippingAddress {
   name: string;
@@ -324,6 +325,7 @@ interface ShippingAddress {
 const Checkout = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const {user} = useAuth();
   const items = useSelector((state: RootState) => state.cart.cartList);
   const [cartList, setCartList] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -344,6 +346,8 @@ const Checkout = () => {
     postalCode: "",
     country: "",
   });
+  const [userAddressData, setUserAddressData] = useState(null);
+
 
   // 🔹 Fetch cart from backend
   const handleGetCart = async () => {
@@ -375,23 +379,33 @@ const Checkout = () => {
     if (cartList.length === 0) handleGetCart();
   }, []);
 
+  const handleGetUserAddress = async() => {
+    try{
+       const res = await getOrderById();
+       console.log(res);
+       if(res.status===200 && user?.id===res?.data?.order?.user){
+        setUserAddressData(res.data?.order?.shippingAddress)
+       }
+    }
+    catch(err){
+      console.log(err);
+    }
+  }
+  useEffect(()=>{
+    handleGetUserAddress()
+  },[]);
+ 
+  const handleUseOldAddress = () => {
+  if (userAddressData) {
+    setShipping(userAddressData);
+  }
+};
+  
+
   // 🔹 Shipping input handler
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setShipping({ ...shipping, [e.target.name]: e.target.value });
   };
-
-  // 🔹 Total discount calculation
-  const totalDiscount = cartList.reduce(
-    (acc, item) =>
-      acc + (calculateDiscount(item.product) * (item.quantity || 0)),
-    0
-  );
-
-  // 🔹 Grand total calculation
-  const subtotal = cartSummary.subtotal;
-  const shippingCost = cartSummary.shipping;
-  const tax = cartSummary.tax;
-  const grandTotal = subtotal + tax + shippingCost - totalDiscount;
 
   // 🔹 Place order
   const handlePlaceOrder = async () => {
@@ -457,6 +471,9 @@ const Checkout = () => {
                 <Input name="postalCode" placeholder="Postal Code" value={shipping.postalCode} onChange={handleChange} />
                 <Input name="country" placeholder="Country" value={shipping.country} onChange={handleChange} />
               </div>
+            { userAddressData !== null &&  <div className="flex justify-end" onClick={handleUseOldAddress}>
+               <Button>Use Old Address</Button>
+              </div>}
             </CardContent>
           </Card>
 
@@ -468,7 +485,7 @@ const Checkout = () => {
                 <div key={item._id} className="flex justify-between">
                   <div>{item.product?.name} × {item.quantity}</div>
                   <div>
-                    ₹{(item.product.price * item.quantity - calculateDiscount(item.product) * item.quantity).toLocaleString()}
+                    ₹{item?.product?.price}
                   </div>
                 </div>
               ))}

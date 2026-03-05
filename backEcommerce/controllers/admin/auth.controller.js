@@ -92,6 +92,10 @@ exports.loginAdmin = async (req, res) => {
   role: admin.role,
 };
 
+if(admin?.role==="admin"){
+  payload.shopId = admin?.shopId;
+}
+
 const accessToken = generateAccessToken(payload);
 const refreshToken = generateRefreshToken(payload);
   console.log(accessToken, refreshToken)

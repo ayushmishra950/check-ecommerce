@@ -1,5 +1,6 @@
 const User = require("../../models/user.model");
 const Admin = require("../../models/admin.model");
+const Order = require("../../models/order.model");
 
 /**
  * ============================
@@ -32,7 +33,7 @@ const checkAdminRole = async (userId, onlySuperAdmin = false) => {
  */
 const getAllUsers = async (req, res) => {
   try {
-    const { userId } = req.query;
+    const userId = req.user?.id;
 
     const roleCheck = await checkAdminRole(userId);
     if (!roleCheck.allowed) {
@@ -42,7 +43,7 @@ const getAllUsers = async (req, res) => {
       });
     }
 
-    const users = await User.find().select("-password");
+    const users = await Order.find({shop:roleCheck?.admin?.shopId}).select("-password");
 
     res.status(200).json({
       success: true,

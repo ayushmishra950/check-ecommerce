@@ -27,11 +27,13 @@ import { cn } from '@/lib/utils';
 import Category from "@/pages/Category";
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux-toolkit/store/store';
+import DeleteModal from "@/card/DeleteModal";
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [isOpenCard, setIsOpenCard] = useState(false);
   // const { itemCount } = useCart();
   const { user, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -46,7 +48,7 @@ export const Header = () => {
 
   return (
     <>
-
+    <DeleteModal isOpen={isOpenCard} onClose={()=>{setIsOpenCard(false)}}  onConfirm={logout} title='Logout' description='Are you sure you want to log out? You will need to sign in again to continue shopping.' buttonName="Logout" />
       <header className="sticky top-0 z-50 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 border-b border-border">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
@@ -162,7 +164,7 @@ export const Header = () => {
                       </>
                     )}
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={logout} className="cursor-pointer text-destructive">
+                    <DropdownMenuItem onClick={()=> {setIsOpenCard(true)}} className="cursor-pointer text-destructive">
                       <LogOut className="mr-2 h-4 w-4" />
                       Logout
                     </DropdownMenuItem>

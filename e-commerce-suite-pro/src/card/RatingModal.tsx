@@ -230,7 +230,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import {addRating} from "@/services/service";
+import {addRating, getRating} from "@/services/service";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
@@ -290,12 +290,13 @@ const RatingModal = ({
         productId: product.product?._id,
         rating: ratings[product.product?._id] || 0,
         feedback: feedbacks[product.product?._id] || "",
-        userId:user?.id
+        userId:user?.id,
       })) || [];
 
     await new Promise((resolve) => setTimeout(resolve, 1200));
     try{
         const res = await addRating(data);
+        console.log(res)
     }
     catch(err){
       console.log(err);
@@ -317,6 +318,16 @@ const RatingModal = ({
       }, 500);
     }, 2500);
   };
+
+
+  const handleGetRating = async() => {
+    try{
+        const res = await getRating();
+    }
+    catch(err){
+      console.log(err);
+    }
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>

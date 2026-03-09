@@ -5,7 +5,6 @@ const ratingSchema = new mongoose.Schema(
         shopId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Shop",
-            required: true
         },
 
         userId: {

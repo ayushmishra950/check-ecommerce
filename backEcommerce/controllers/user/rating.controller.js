@@ -3,42 +3,48 @@ const Rating = require("../../models/rating.model");
 
 // ADD RATING
 const addRating = async (req, res) => {
-    try {
-    console.log(req.body);
-        const { shopId, productId, rating, feedback } = req.body;
-        const userId = req.user._id; // assume auth middleware
+   try {
+
+    const ratings = req.body;   // array
+    const userId = req.user.id;
+
+    const createdRatings = [];
+
+    for (const item of ratings) {
+
+        const { productId, rating, feedback } = item;
 
         const existingRating = await Rating.findOne({
             userId,
             productId
         });
 
-        if (existingRating) {
-            return res.status(400).json({
-                success: false,
-                message: "You already rated this product"
+        if (!existingRating) {
+
+            const newRating = await Rating.create({
+                productId,
+                userId,
+                rating,
+                feedback
             });
+
+            createdRatings.push(newRating);
+            console.log(newRating)
         }
-
-        const newRating = await Rating.create({
-            shopId,
-            productId,
-            userId,
-            rating,
-            feedback
-        });
-
-        res.status(201).json({
-            success: true,
-            data: newRating
-        });
-
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: error.message
-        });
     }
+
+    res.status(201).json({
+        success: true,
+        data: createdRatings
+    });
+
+} catch (error) {
+    console.log(error);
+    res.status(500).json({
+        success: false,
+        message: error.message
+    });
+}
 };
 
 

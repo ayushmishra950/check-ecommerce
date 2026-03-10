@@ -249,8 +249,29 @@ export const addRating = async (obj: any) => {
 }
 
 
-export const getRating = async (productIds: string[]) => {
-    const res = await api.get(`/api/user/rating/product`, { params: { productIds : productIds } });
+export const getAllRating = async () => {
+    const res = await api.get(`/api/user/rating/allProduct`);
+    return res;
+}
+
+
+
+export const getUnratedProduct = async (productIds: string[]) => {
+    const res = await api.get(`/api/user/rating/product`, { params: { productIds: productIds } });
+    return res;
+}
+
+
+
+export const updateRating = async (obj: any) => {
+    const res = await api.put(`/api/user/rating/update`, obj);
+    return res;
+}
+
+
+
+export const deleteRating = async (id: string) => {
+    const res = await api.delete(`/api/user/rating/delete/${id}`);
     return res;
 }
 

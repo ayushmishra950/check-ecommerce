@@ -8,7 +8,7 @@ type DeleteModalProps = {
   title?: string;
   description?: string;
   isDeleteLoading?: boolean;
-  buttonName:string;
+  buttonName: string;
 };
 
 const DeleteModal: React.FC<DeleteModalProps> = ({
@@ -48,7 +48,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
             className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700"
           >
             {isDeleteLoading && <Loader2 />}
-           {buttonName} 
+            {buttonName}
           </button>
         </div>
       </div>

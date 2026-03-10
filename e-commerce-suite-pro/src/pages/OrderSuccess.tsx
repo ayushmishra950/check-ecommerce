@@ -2,40 +2,40 @@ import React, { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import RatingModal from "@/card/RatingModal";
-import {getRating} from "@/services/service"; 
+import { getUnratedProduct } from "@/services/service";
 
 const OrderSuccess: React.FC = () => {
   const { orderId } = useParams<{ orderId: string }>();
   const [isRatingOpen, setIsRatingOpen] = useState(true);
   const location = useLocation();
   const cartList = location.state?.cartList;
-const [filteredCartList, setFilteredCartList] = useState<any[]>([]);
+  const [filteredCartList, setFilteredCartList] = useState<any[]>([]);
 
 
-  
+
   const handleGetRating = async () => {
     const productIds = cartList?.map((c) => c?.product?._id);
     if (!productIds || productIds.length === 0) return;
-  
+
     try {
-      const res = await getRating(productIds);
+      const res = await getUnratedProduct(productIds);
       if (res.status === 200) {
         const unratedIds = res.data.data; // IDs of unrated products
         const filteredCart = cartList?.filter((c) =>
           unratedIds.includes(c?.product?._id)
         );
 
-  
+
         // If no unrated products, close modal / go back
         if (!filteredCart || filteredCart.length === 0) {
           setIsRatingOpen(false);
           return;
         }
 
-        else{
+        else {
           setIsRatingOpen(true);
         }
-  
+
         // Optionally store filtered cart
         setFilteredCartList(filteredCart);
       }
@@ -44,10 +44,10 @@ const [filteredCartList, setFilteredCartList] = useState<any[]>([]);
     }
   };
   useEffect(() => {
-  if (cartList && cartList.length > 0) {
-    handleGetRating();
-  }
-}, [cartList]);
+    if (cartList && cartList.length > 0) {
+      handleGetRating();
+    }
+  }, [cartList]);
 
 
   return (

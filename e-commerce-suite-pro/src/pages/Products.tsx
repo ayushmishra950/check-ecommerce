@@ -1,40 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
-import {
-  Grid3x3,
-  List,
-  SlidersHorizontal,
-  X,
-  Search,
-  ChevronDown,
-  ChevronUp,
-  Star,
-  Package,
-  ShoppingBag,
-  ArrowUpDown,
-  Tag,
-  Sparkles,
-  TrendingUp,
-  Award,
-  DollarSign
-} from 'lucide-react';
+import { Grid3x3, List, SlidersHorizontal, X, Search, ChevronDown, ChevronUp, Star, Package, ShoppingBag, ArrowUpDown, Tag, Sparkles, TrendingUp, Award, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ProductCard } from '@/components/products/ProductCard';
-import { products } from '@/data/products';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
 import { getProductByCategoryId, getProductsByUsers } from "@/services/service";
 import { Slider } from '@/components/ui/slider';
-import {setProductList} from "@/redux-toolkit/slice/productSlice";
+import { setProductList } from "@/redux-toolkit/slice/productSlice";
 import { useAppDispatch, useAppSelector } from '@/redux-toolkit/hooks/hook';
 
 const Products = () => {
@@ -54,7 +30,7 @@ const Products = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(12);
   const dispatch = useAppDispatch();
-  const productList = useAppSelector((state)=> state?.product?.productList)
+  const productList = useAppSelector((state) => state?.product?.productList)
 
   const categoryFilter = searchParams.get('category');
   const searchParamQuery = searchParams.get('search');
@@ -120,7 +96,7 @@ const Products = () => {
     try {
       const res = await (id ? getProductByCategoryId(id) : getProductsByUsers());
       if (res.status === 200) {
-       dispatch(setProductList(res?.data?.data));
+        dispatch(setProductList(res?.data?.data));
       }
     } catch (err) {
       console.log(err);
@@ -129,8 +105,8 @@ const Products = () => {
   };
 
   useEffect(() => {
-    if(productList.length===0 || id){
-handleGetProduct();
+    if (productList.length === 0 || id) {
+      handleGetProduct();
     }
   }, [id, productList.length]);
 

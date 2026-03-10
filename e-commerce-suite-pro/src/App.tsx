@@ -38,6 +38,7 @@ import SuperAdminDashboard from "./pages/superadmin/SuperAdminDashboard";
 import AdminManagement from "./pages/superadmin/AdminManagement";
 import RolesPermissions from "./pages/superadmin/RolesPermissions";
 import RoleRoute from "@/routes/RoleRoute";
+import ReviewPage from "./pages/ReviewPage";
 
 const queryClient = new QueryClient();
 
@@ -66,6 +67,7 @@ const App = () => (
                 <Route path="/ordersuccess" element={<OrderSuccess />} />
                 <Route path="/orderpage" element={<OrdersPage />} />
                 <Route path="/setting" element={<UserSettings />} />
+                <Route path="/reviewpage" element={<ReviewPage />} />
               </Route>
 
               {/* Auth Routes */}

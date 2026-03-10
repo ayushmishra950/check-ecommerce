@@ -9,7 +9,8 @@ import {
   X,
   LogOut,
   Settings,
-  Package
+  Package,
+  Gift
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -48,7 +49,7 @@ export const Header = () => {
 
   return (
     <>
-    <DeleteModal isOpen={isOpenCard} onClose={()=>{setIsOpenCard(false)}}  onConfirm={logout} title='Logout' description='Are you sure you want to log out? You will need to sign in again to continue shopping.' buttonName="Logout" />
+      <DeleteModal isOpen={isOpenCard} onClose={() => { setIsOpenCard(false) }} onConfirm={logout} title='Logout' description='Are you sure you want to log out? You will need to sign in again to continue shopping.' buttonName="Logout" />
       <header className="sticky top-0 z-50 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 border-b border-border">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
@@ -144,6 +145,12 @@ export const Header = () => {
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
+                      <Link to="/reviewpage" className="cursor-pointer">
+                        <Gift className="mr-2 h-4 w-4" />
+                        Reviews
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
                       <Link to="/setting" className="cursor-pointer">
                         <Settings className="mr-2 h-4 w-4" />
                         Settings
@@ -164,7 +171,7 @@ export const Header = () => {
                       </>
                     )}
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={()=> {setIsOpenCard(true)}} className="cursor-pointer text-destructive">
+                    <DropdownMenuItem onClick={() => { setIsOpenCard(true) }} className="cursor-pointer text-destructive">
                       <LogOut className="mr-2 h-4 w-4" />
                       Logout
                     </DropdownMenuItem>

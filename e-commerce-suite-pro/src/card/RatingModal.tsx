@@ -230,7 +230,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { addRating, getRating } from "@/services/service";
+import { addRating } from "@/services/service";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -259,14 +259,14 @@ const RatingModal = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [allRatingList, setAllRatingList] = useState<any>([]);
-const [filteredCartList, setFilteredCartList] = useState<any[]>(filteredCart);
- console.log(filteredCart)
+  const [filteredCartList, setFilteredCartList] = useState<any[]>(filteredCart);
+  console.log(filteredCart)
 
-if (!filteredCart || filteredCart.length === 0) {
-  onOpenChange(false);
-  navigate("/ordersuccess"); // or router.back()
-  return;
-}
+  if (!filteredCart || filteredCart.length === 0) {
+    onOpenChange(false);
+    navigate("/ordersuccess"); // or router.back()
+    return;
+  }
 
   const getRatingText = (val: number) => {
     switch (val) {
@@ -325,6 +325,7 @@ if (!filteredCart || filteredCart.length === 0) {
       }, 500);
     }, 2500);
   };
+  console.log(filteredCart)
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -354,7 +355,7 @@ if (!filteredCart || filteredCart.length === 0) {
               {/* Product List */}
               <div className="space-y-6">
 
-                {filteredCartList?.map((product: any) => (
+                {filteredCart?.map((product: any) => (
                   <div
                     key={product._id}
                     className="border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 space-y-4"

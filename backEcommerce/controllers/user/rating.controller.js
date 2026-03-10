@@ -3,63 +3,63 @@ const Rating = require("../../models/rating.model");
 
 // ADD RATING
 const addRating = async (req, res) => {
-   try {
+    try {
 
-    const ratings = req.body;   // array
-    const userId = req.user.id;
+        const ratings = req.body;   // array
+        const userId = req.user.id;
 
-    const createdRatings = [];
+        const createdRatings = [];
 
-    for (const item of ratings) {
+        for (const item of ratings) {
 
-        const { productId, rating, feedback } = item;
+            const { productId, rating, feedback } = item;
 
-        const existingRating = await Rating.findOne({
-            userId,
-            productId
-        });
-
-        if (!existingRating) {
-
-            const newRating = await Rating.create({
-                productId,
+            const existingRating = await Rating.findOne({
                 userId,
-                rating,
-                feedback
+                productId
             });
 
-            createdRatings.push(newRating);
-            console.log(newRating)
+            if (!existingRating) {
+
+                const newRating = await Rating.create({
+                    productId,
+                    userId,
+                    rating,
+                    feedback
+                });
+
+                createdRatings.push(newRating);
+                console.log(newRating)
+            }
         }
+
+        res.status(201).json({
+            success: true,
+            data: createdRatings
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
     }
-
-    res.status(201).json({
-        success: true,
-        data: createdRatings
-    });
-
-} catch (error) {
-    console.log(error);
-    res.status(500).json({
-        success: false,
-        message: error.message
-    });
-}
 };
 
 
 
 // GET ALL RATINGS BY PRODUCT
-const getProductRatings = async (req, res) => {
+const getUnratedProducts = async (req, res) => {
     try {
-      
-   let  productIds  = req.query['productIds[]'];
-   console.log(productIds)
+
+        let productIds = req.query['productIds[]'];
+        console.log(productIds)
 
         if (!productIds) {
             return res.status(400).json({
-                success:false,
-                message:"productIds required"
+                success: false,
+                message: "productIds required"
             })
         }
 
@@ -97,6 +97,42 @@ const getProductRatings = async (req, res) => {
 
 
 
+
+// GET ALL RATINGS BY PRODUCT
+const getProductRatings = async (req, res) => {
+    try {
+
+        const userId = req.user?.id;
+
+        if (!userId) {
+            return res.status(400).json({
+                success: false,
+                message: "userId required"
+            })
+        }
+
+        // user ne jin products ko rating di hai
+        const ratedProducts = await Rating.find({
+            userId: userId
+        }).populate("productId");
+
+        res.status(200).json({
+            success: true,
+            count: ratedProducts.length,
+            data: ratedProducts
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+
+
+
 // GET RATINGS BY SHOP
 const getShopRatings = async (req, res) => {
     try {
@@ -124,12 +160,18 @@ const getShopRatings = async (req, res) => {
 // UPDATE RATING
 const updateRating = async (req, res) => {
     try {
-
-        const { id } = req.params;
+        console.log(req.body)
+        const { id, ...obj } = req.body;
+        let updateObj = {
+            userId: req.user?.id,
+            productId: obj.productId,
+            rating: obj.rating,
+            feedback: obj.feedback
+        }
 
         const updatedRating = await Rating.findByIdAndUpdate(
             id,
-            req.body,
+            updateObj,
             { new: true }
         );
 
@@ -160,8 +202,10 @@ const deleteRating = async (req, res) => {
     try {
 
         const { id } = req.params;
+        const userId = req.user?.id;
+        if (!id || !userId) return res.status(400).json({ message: "Rating id or userId Not Found." })
 
-        const rating = await Rating.findByIdAndDelete(id);
+        const rating = await Rating.findOneAndDelete({ _id: id, userId: userId });
 
         if (!rating) {
             return res.status(404).json({
@@ -187,6 +231,7 @@ const deleteRating = async (req, res) => {
 module.exports = {
     addRating,
     getProductRatings,
+    getUnratedProducts,
     getShopRatings,
     updateRating,
     deleteRating

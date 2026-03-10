@@ -230,33 +230,43 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import {addRating, getRating} from "@/services/service";
+import { addRating, getRating } from "@/services/service";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 interface RatingModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  cartList?: any[];
+  filteredCart?: any[];
   onSubmit?: (data: any) => void;
 }
 
 const RatingModal = ({
   isOpen,
   onOpenChange,
-  cartList,
+  filteredCart,
   onSubmit,
 }: RatingModalProps) => {
   const stars = [1, 2, 3, 4, 5];
-   const {user} = useAuth();
-   const {toast} = useToast();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
   const [ratings, setRatings] = useState<Record<string, number>>({});
   const [hover, setHover] = useState<Record<string, number>>({});
   const [feedbacks, setFeedbacks] = useState<Record<string, string>>({});
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [allRatingList, setAllRatingList] = useState<any>([])
+  const [allRatingList, setAllRatingList] = useState<any>([]);
+const [filteredCartList, setFilteredCartList] = useState<any[]>(filteredCart);
+ console.log(filteredCart)
+
+if (!filteredCart || filteredCart.length === 0) {
+  onOpenChange(false);
+  navigate("/ordersuccess"); // or router.back()
+  return;
+}
 
   const getRatingText = (val: number) => {
     switch (val) {
@@ -287,24 +297,20 @@ const RatingModal = ({
     setIsSubmitting(true);
 
     const data =
-      cartList?.map((product: any) => ({
+      filteredCart?.map((product: any) => ({
         productId: product.product?._id,
         rating: ratings[product.product?._id] || 0,
         feedback: feedbacks[product.product?._id] || "",
-        userId:user?.id,
+        userId: user?.id,
       })) || [];
 
     await new Promise((resolve) => setTimeout(resolve, 1200));
-    try{
-        const res = await addRating(data);
-        console.log(res)
+    try {
+      const res = await addRating(data);
+      console.log(res)
     }
-    catch(err){
+    catch (err) {
       console.log(err);
-    }
-
-    if (onSubmit) {
-      onSubmit(data);
     }
 
     setIsSubmitting(false);
@@ -319,27 +325,6 @@ const RatingModal = ({
       }, 500);
     }, 2500);
   };
-
-
-  const handleGetRating = async() => {
-    const productIds = cartList?.map((c)=> c?.product?._id);
-    console.log(productIds)
-    if(!productIds || productIds.length===0) return ;
-    try{
-        const res = await getRating(productIds);
-        console.log(res);
-        if(res.status===200){
-          setAllRatingList(res.data.data)
-        }
-    }
-    catch(err){
-      console.log(err);
-    }
-  }
-
-  useEffect(()=>{
-    handleGetRating()
-  },[])
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -361,7 +346,6 @@ const RatingModal = ({
                 <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-yellow-500 to-orange-600 bg-clip-text text-transparent">
                   Rate Your Experience
                 </DialogTitle>
-
                 <DialogDescription className="text-zinc-500 dark:text-zinc-400 mt-2">
                   Please rate each product you purchased.
                 </DialogDescription>
@@ -370,82 +354,82 @@ const RatingModal = ({
               {/* Product List */}
               <div className="space-y-6">
 
-            {cartList?.map((product: any) => (
-  <div
-    key={product._id}
-    className="border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 space-y-4"
-  >
+                {filteredCartList?.map((product: any) => (
+                  <div
+                    key={product._id}
+                    className="border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 space-y-4"
+                  >
 
-    {/* Product Header */}
-    <div className="flex items-center gap-3">
+                    {/* Product Header */}
+                    <div className="flex items-center gap-3">
 
-      {/* Product Image */}
-      <img
-        src={product.product?.images?.[0]}
-        alt={product.product?.name}
-        className="w-12 h-12 rounded-md object-cover border border-zinc-200"
-      />
+                      {/* Product Image */}
+                      <img
+                        src={product.product?.images?.[0]}
+                        alt={product.product?.name}
+                        className="w-12 h-12 rounded-md object-cover border border-zinc-200"
+                      />
 
-      {/* Product Name */}
-      <h3 className="font-semibold text-lg text-zinc-800 dark:text-zinc-200">
-        {product.product?.name}
-      </h3>
+                      {/* Product Name */}
+                      <h3 className="font-semibold text-lg text-zinc-800 dark:text-zinc-200">
+                        {product.product?.name}
+                      </h3>
 
-    </div>
+                    </div>
 
-    {/* Stars */}
-    <div className="flex items-center gap-2">
+                    {/* Stars */}
+                    <div className="flex items-center gap-2">
 
-      {stars.map((star) => (
-        <button
-          key={star}
-          type="button"
-          onClick={() => handleRating(product?.product?._id, star)}
-          onMouseEnter={() =>
-            setHover((prev) => ({
-              ...prev,
-              [product?.product?._id]: star,
-            }))
-          }
-          onMouseLeave={() =>
-            setHover((prev) => ({
-              ...prev,
-              [product?.product?._id]: 0,
-            }))
-          }
-          className="transition-transform hover:scale-125"
-        >
-          <Star
-            size={28}
-            className={cn(
-              (hover[product?.product?._id] || ratings[product?.product?._id] || 0) >= star
-                ? "fill-yellow-400 text-yellow-500"
-                : "fill-transparent text-zinc-300 dark:text-zinc-700"
-            )}
-          />
-        </button>
-      ))}
+                      {stars.map((star) => (
+                        <button
+                          key={star}
+                          type="button"
+                          onClick={() => handleRating(product?.product?._id, star)}
+                          onMouseEnter={() =>
+                            setHover((prev) => ({
+                              ...prev,
+                              [product?.product?._id]: star,
+                            }))
+                          }
+                          onMouseLeave={() =>
+                            setHover((prev) => ({
+                              ...prev,
+                              [product?.product?._id]: 0,
+                            }))
+                          }
+                          className="transition-transform hover:scale-125"
+                        >
+                          <Star
+                            size={28}
+                            className={cn(
+                              (hover[product?.product?._id] || ratings[product?.product?._id] || 0) >= star
+                                ? "fill-yellow-400 text-yellow-500"
+                                : "fill-transparent text-zinc-300 dark:text-zinc-700"
+                            )}
+                          />
+                        </button>
+                      ))}
 
-      <span className="ml-3 text-sm text-zinc-500">
-        {getRatingText(
-          hover[product?.product?._id] || ratings[product?.product?._id] || 0
-        )}
-      </span>
+                      <span className="ml-3 text-sm text-zinc-500">
+                        {getRatingText(
+                          hover[product?.product?._id] || ratings[product?.product?._id] || 0
+                        )}
+                      </span>
 
-    </div>
+                    </div>
 
-    {/* Feedback */}
-    <Textarea
-      value={feedbacks[product?.product?._id] || ""}
-      onChange={(e) =>
-        handleFeedback(product?.product?._id, e.target.value)
-      }
-      placeholder="Write your feedback..."
-      className="min-h-[80px] bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-lg resize-none"
-    />
+                    {/* Feedback */}
+                    <Textarea
+                      value={feedbacks[product?.product?._id] || ""}
+                      onChange={(e) =>
+                        handleFeedback(product?.product?._id, e.target.value)
+                      }
+                      placeholder="Write your feedback..."
+                      className="min-h-[80px] bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-lg resize-none"
+                    />
 
-  </div>
-))}
+                  </div>
+                ))}
 
               </div>
 

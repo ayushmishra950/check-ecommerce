@@ -385,8 +385,8 @@ const Checkout = () => {
     try {
       const res = await getOrderById();
       console.log(res);
-      if (res.status === 200 && user?.id === res?.data?.order?.user) {
-        setUserAddressData(res.data?.order?.shippingAddress)
+      if (res.status === 200 && user?.id?.toString() === res?.data?.order?.user?.toString()) {
+        setUserAddressData(res.data?.shippingAddress)
       }
     }
     catch (err) {
@@ -394,15 +394,17 @@ const Checkout = () => {
     }
   }
   useEffect(() => {
-    handleGetUserAddress()
-  }, []);
+    if(userAddressData === null){
+    handleGetUserAddress();
+      }
+  }, [user, userAddressData]);
 
   const handleUseOldAddress = () => {
     if (userAddressData) {
       setShipping(userAddressData);
     }
   };
-
+   console.log(userAddressData, shipping)
 
   // 🔹 Shipping input handler
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

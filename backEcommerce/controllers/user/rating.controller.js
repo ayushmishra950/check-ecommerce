@@ -52,8 +52,8 @@ const addRating = async (req, res) => {
 // GET ALL RATINGS BY PRODUCT
 const getProductRatings = async (req, res) => {
     try {
-
-   let { productIds } = req.query;
+      
+   let  productIds  = req.query['productIds[]'];
    console.log(productIds)
 
         if (!productIds) {

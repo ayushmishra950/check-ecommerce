@@ -1,4 +1,5 @@
 const Rating = require("../../models/rating.model");
+const Product = require("../../models/product.model");
 
 
 // ADD RATING
@@ -29,7 +30,13 @@ const addRating = async (req, res) => {
                 });
 
                 createdRatings.push(newRating);
-                console.log(newRating)
+                // Fetch product
+                const product = await Product.findById(productId);
+
+                if (product) {
+                    product.rating.push(newRating._id); // push rating id
+                    await product.save();
+                }
             }
         }
 
@@ -206,6 +213,15 @@ const deleteRating = async (req, res) => {
         if (!id || !userId) return res.status(400).json({ message: "Rating id or userId Not Found." })
 
         const rating = await Rating.findOneAndDelete({ _id: id, userId: userId });
+
+        if (rating) {
+            const product = await Product.findById(rating.productId);
+            if (product) {
+                // Remove the rating id from product's rating array
+                product.rating.pull(rating._id);  // pull mutates the array in place
+                await product.save();
+            }
+        }
 
         if (!rating) {
             return res.status(404).json({

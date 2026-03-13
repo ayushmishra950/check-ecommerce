@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-import { getProductById, getProductByCategoryId } from "@/services/service";
+import { getProductById, getProductByCategoryId, addCart } from "@/services/service";
 import { addToCart, incrementQuantity, decrementQuantity } from '@/redux-toolkit/slice/cartSlice';
 import { useAppDispatch, useAppSelector } from '@/redux-toolkit/hooks/hook';
 import {calculateDiscount} from "@/services/allFunction";
@@ -52,42 +52,6 @@ const dummyReviews = [
     comment: "The product is decent but I expected more features at this price point. Still, it serves the purpose well.",
     helpful: 8,
     verified: false,
-  },
-];
-
-// Related Products Dummy Data
-const relatedProducts = [
-  {
-    id: "1",
-    name: "Wireless Earbuds",
-    price: 2999,
-    originalPrice: 4999,
-    image: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400",
-    rating: 4.5,
-  },
-  {
-    id: "2",
-    name: "Smart Watch",
-    price: 8999,
-    originalPrice: 12999,
-    image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400",
-    rating: 4.7,
-  },
-  {
-    id: "3",
-    name: "Bluetooth Speaker",
-    price: 1999,
-    originalPrice: 3499,
-    image: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400",
-    rating: 4.3,
-  },
-  {
-    id: "4",
-    name: "Phone Case",
-    price: 599,
-    originalPrice: 999,
-    image: "https://images.unsplash.com/photo-1601593346740-925612772716?w=400",
-    rating: 4.8,
   },
 ];
 
@@ -154,6 +118,25 @@ const ProductDetail = () => {
   useEffect(() => {
     handleGetProduct();
   }, []);
+
+
+  
+    const handleAddCart = async (product) => {
+      let quantity = 1;
+      try {
+        const res = await addCart(product?._id, quantity);
+        console.log(res)
+        if (res.status === 201) {
+          toast({ title: "Add Item To Cart.", description: res?.data?.message })
+          dispatch(addToCart(product))
+  
+        }
+      }
+      catch (err) {
+        console.log(err);
+        toast({ title: "Error Add Cart.", description: err?.response?.data?.message || err?.message, variant: "destructive" })
+      }
+    }
 
   const handleShare = (platform: string) => {
     const url = window.location.href;
@@ -401,11 +384,7 @@ const ProductDetail = () => {
                   className="flex-1 h-14 text-lg bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 transition-all transform hover:scale-105 shadow-lg shadow-blue-500/30"
                   disabled={!product?.stock}
                   onClick={() => {
-                    dispatch(addToCart(product));
-                    toast({
-                      title: "Added to Cart!",
-                      description: `${product?.name} has been added to your cart.`,
-                    });
+                    handleAddCart(product)
                   }}
                 >
                   <ShoppingCart className="h-6 w-6 mr-2" />

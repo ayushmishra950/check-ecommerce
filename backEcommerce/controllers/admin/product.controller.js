@@ -134,7 +134,8 @@ const getProductById = async (req, res) => {
   try {
     const product = await Product.findById(id)
       .populate("category", "name")
-      .populate("adminId", "name email");
+      .populate("adminId", "name email")
+      .populate("rating", "rating feedback");
 
     if (!product) {
       return res.status(404).json({
@@ -162,10 +163,125 @@ const getProductById = async (req, res) => {
   }
 };
 
+// const updateProduct = async (req, res) => {
+//   try {
+//     const { shopId, adminId, name,price,category, stock, description, isActive, discount, discountType } = req.body;
+//     const images = req.files?.images || [];
+//     console.log(images)
+
+//     // ✅ 1. Find Product
+//     const product = await Product.findById(req.params.id);
+//     if (!product) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Product not found",
+//       });
+//     }
+
+//     // ✅ 2. Validate Shop & Admin
+//     const validated = await validateShopAndAdmin(
+//       shopId,
+//       adminId
+//     );
+
+//     if (!validated.success) {
+//       return res
+//         .status(validated.code)
+//         .json({ success: false, message: validated.message });
+//     }
+
+//     // ✅ 3. Check duplicate name (if name is being changed)
+//     if (name && name !== product.name) {
+//       const existingProduct = await Product.findOne({
+//         shopId: product.shopId,
+//         name,
+//         _id: { $ne: product._id }, // exclude current product
+//       });
+
+//       if (existingProduct) {
+//         return res.status(400).json({
+//           success: false,
+//           message: "Product with this name already exists in this shop",
+//         });
+//       }
+//     }
+
+//     // ✅ 4. Upload new images (if provided)
+//     let imageUrls = product.images || [];
+
+//     if (Array.isArray(images) && images.length > 0) {
+//       const uploadedImages = await Promise.all(
+//         images.map(async (img) => {
+//           const url = await uploadToCloudinary(img?.buffer);
+//           return url;
+//         })
+//       );
+ 
+//       // Replace old images with new ones
+//       imageUrls = uploadedImages;
+//     }
+//     console.log("convert url", imageUrls);
+
+//     // ✅ 5. Update product fields
+//     product.name = name ?? product.name;
+//     product.price = price ?? product.price;
+//     product.category = category ?? product.category;
+//     product.stock = stock ?? product.stock;
+//     product.description = description ?? product.description;
+//     product.isActive = isActive ?? product.isActive;
+//     product.images = [...updatedImageUrls, ...uploadedNewImages];
+//     product.discount = discount;
+//     product.discountType = discountType;
+
+//     await product.save();
+
+//     res.status(200).json({
+//       success: true,
+//       message: "Product updated successfully",
+//       data: product,
+//     });
+//   } catch (error) {
+//     console.log(error?.message);
+
+//     if (error.code === 11000) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Duplicate product found",
+//       });
+//     }
+
+//     res.status(500).json({
+//       success: false,
+//       message: `Product update failed:- ${error.message}`,
+//       error: error.message,
+//     });
+//   }
+// };
+
+
+
+
+
+
+
+
 const updateProduct = async (req, res) => {
   try {
-    const { shopId, adminId, name,price,category, stock, description, isActive, discount, discountType } = req.body;
-    const images = req.files?.images || [];
+    const {
+      shopId,
+      adminId,
+      name,
+      price,
+      category,
+      stock,
+      description,
+      isActive,
+      discount,
+      discountType,
+      images // old image urls from frontend
+    } = req.body;
+
+    const newFiles = req.files?.images || [];
 
     // ✅ 1. Find Product
     const product = await Product.findById(req.params.id);
@@ -177,10 +293,7 @@ const updateProduct = async (req, res) => {
     }
 
     // ✅ 2. Validate Shop & Admin
-    const validated = await validateShopAndAdmin(
-      shopId,
-      adminId
-    );
+    const validated = await validateShopAndAdmin(shopId, adminId);
 
     if (!validated.success) {
       return res
@@ -188,12 +301,12 @@ const updateProduct = async (req, res) => {
         .json({ success: false, message: validated.message });
     }
 
-    // ✅ 3. Check duplicate name (if name is being changed)
+    // ✅ 3. Check duplicate name
     if (name && name !== product.name) {
       const existingProduct = await Product.findOne({
         shopId: product.shopId,
         name,
-        _id: { $ne: product._id }, // exclude current product
+        _id: { $ne: product._id },
       });
 
       if (existingProduct) {
@@ -204,31 +317,41 @@ const updateProduct = async (req, res) => {
       }
     }
 
-    // ✅ 4. Upload new images (if provided)
-    let imageUrls = product.images || [];
+    // ✅ 4. Convert old image URLs safely to array
+    let keepImages = [];
 
-    if (Array.isArray(images) && images.length > 0) {
-      const uploadedImages = await Promise.all(
-        images.map(async (img) => {
-          const url = await uploadToCloudinary(img?.buffer);
+    if (images) {
+      if (Array.isArray(images)) {
+        keepImages = images;
+      } else if (typeof images === "string") {
+        keepImages = [images];
+      }
+    }
+
+    // ✅ 5. Upload new images to Cloudinary
+    let uploadedImages = [];
+
+    if (Array.isArray(newFiles) && newFiles.length > 0) {
+      uploadedImages = await Promise.all(
+        newFiles.map(async (file) => {
+          const url = await uploadToCloudinary(file.buffer);
           return url;
         })
       );
-
-      // Replace old images with new ones
-      imageUrls = uploadedImages;
     }
 
-    // ✅ 5. Update product fields
+    // ✅ 6. Final images merge
+    product.images = [...keepImages, ...uploadedImages];
+
+    // ✅ 7. Update other fields
     product.name = name ?? product.name;
     product.price = price ?? product.price;
     product.category = category ?? product.category;
     product.stock = stock ?? product.stock;
     product.description = description ?? product.description;
     product.isActive = isActive ?? product.isActive;
-    product.images = imageUrls;
-    product.discount = discount;
-    product.discountType = discountType;
+    product.discount = discount ?? product.discount;
+    product.discountType = discountType ?? product.discountType;
 
     await product.save();
 
@@ -237,8 +360,9 @@ const updateProduct = async (req, res) => {
       message: "Product updated successfully",
       data: product,
     });
+
   } catch (error) {
-    console.log(error?.message);
+    console.error(error.message);
 
     if (error.code === 11000) {
       return res.status(400).json({
@@ -249,8 +373,7 @@ const updateProduct = async (req, res) => {
 
     res.status(500).json({
       success: false,
-      message: `Product update failed:- ${error.message}`,
-      error: error.message,
+      message: `Product update failed: ${error.message}`,
     });
   }
 };
@@ -270,7 +393,14 @@ const deleteProduct = async (req, res) => {
       });
     }
 
+  const cat = await Category.updateMany(
+  { product: product._id },
+  { $pull: { product : product._id } }
+);
+
+console.log(cat)
     await product.deleteOne();
+
 
     res.status(200).json({
       success: true,

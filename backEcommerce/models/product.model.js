@@ -19,6 +19,7 @@ const productSchema = new mongoose.Schema(
     description: {
       type: String,
       required: [true, "Product description is required"],
+      trim:true
     },
 
     // 💰 Pricing
@@ -59,12 +60,10 @@ const productSchema = new mongoose.Schema(
     ],
 
     // ⭐ Ratings
-    rating: {
-      type: Number,
-      default: 0,
-      min: 0,
-      max: 5,
-    },
+    rating: [{
+     type : mongoose.Schema.Types.ObjectId,
+     ref:"Rating"
+    }],
 
     numReviews: {
       type: Number,

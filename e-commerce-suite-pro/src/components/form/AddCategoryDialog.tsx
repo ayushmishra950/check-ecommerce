@@ -8,13 +8,14 @@ import { Textarea } from "@/components/ui/textarea"
 import { addCategory, updateCategory, getCategory } from "@/services/service"
 import { useAuth } from "@/context/AuthContext"
 import { useToast } from "@/hooks/use-toast"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 const AddCategoryDialog = ({ isOpen, initialData, onClose, setCategoryListRefresh }) => {
   const { user } = useAuth()
   const { toast } = useToast();
-  const [name, setName] = useState("")
-  const [description, setDescription] = useState("")
-  const [status, setStatus] = useState("active")
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [status, setStatus] = useState("active");
   const [loading, setLoading] = useState(false);
   const [categoryList, setCategoryList] = useState<any>([])
   const isEdit = Boolean(initialData);
@@ -68,7 +69,6 @@ const AddCategoryDialog = ({ isOpen, initialData, onClose, setCategoryListRefres
       let obj = { userId: user?.id, shopId: user?.shopId }
       try {
         const res = await getCategory(obj);
-        console.log(res)
         setCategoryList(res?.data?.data);
       }
       catch (err) {
@@ -93,25 +93,11 @@ const AddCategoryDialog = ({ isOpen, initialData, onClose, setCategoryListRefres
 
       {/* Modal */}
       <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-        <form
-          onSubmit={handleSubmit}
-          className="relative w-full max-w-md space-y-4 rounded-lg border bg-background p-6 shadow-lg"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* ❗ Title */}
-          <h2 className="text-lg font-semibold">
-            {isEdit ? "Edit Category" : "Add Category"}
-          </h2>
-
-          {/* Close Icon */}
-          <button
-            type="button"
-            disabled={loading}
-            onClick={onClose}
-            className="absolute right-4 top-4 rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-50"
-          >
-            <X className="h-5 w-5" />
-          </button>
+        <Dialog open={isOpen} onOpenChange={onClose} >
+          <DialogContent className="w-[430px]">
+            <DialogHeader>
+              <DialogTitle>{isEdit ? "Edit Category" : "Add Category"}</DialogTitle>
+            </DialogHeader>
 
           <div className="space-y-2">
             <Label>Category Name</Label>
@@ -148,7 +134,7 @@ const AddCategoryDialog = ({ isOpen, initialData, onClose, setCategoryListRefres
           </div>
 
           <div className="flex gap-2 pt-2">
-            <Button type="submit" className="flex-1" disabled={loading || !name || !description}>
+            <Button type="submit" className="flex-1" disabled={loading || !name || !description} onClick={handleSubmit} >
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {loading
                 ? isEdit ? "Updating..." : "Saving..."
@@ -164,7 +150,9 @@ const AddCategoryDialog = ({ isOpen, initialData, onClose, setCategoryListRefres
               Cancel
             </Button>
           </div>
-        </form>
+       
+         </DialogContent>
+        </Dialog>
       </div>
     </>
   )

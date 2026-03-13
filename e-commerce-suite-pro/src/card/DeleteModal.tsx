@@ -45,9 +45,10 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
 
           <button
             onClick={onConfirm}
+            disabled={isDeleteLoading}
             className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700"
           >
-            {isDeleteLoading && <Loader2 />}
+            {isDeleteLoading && <Loader2 className="animate-spin" />}
             {buttonName}
           </button>
         </div>

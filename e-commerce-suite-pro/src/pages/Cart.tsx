@@ -75,7 +75,8 @@ const Cart = () => {
     shipping: 0,
     totalPrice: 0,
     totalDiscount: 0,
-    taxBreakdown: []
+    taxBreakdown: [],
+    coupons : 0
   });
 
 
@@ -121,6 +122,7 @@ const Cart = () => {
           totalPrice: res?.data?.cart?.totalPrice || 0,
           totalDiscount: res?.data?.cart?.totalDiscount || 0,
           taxBreakdown: res?.data?.cart?.taxBreakdown || [],
+          coupons : res?.data?.cart?.coupons || 0
         });
         setCartListRefresh(false);
       }
@@ -521,8 +523,8 @@ const Cart = () => {
                 </div>
                 {/* )} */}
 
-                {/* {discount > 0 && ( */}
-                <div className="flex justify-between text-green-600">
+             
+               {cartSummary?.coupons > 0 && <div className="flex justify-between text-green-600">
                   <span className="flex items-center gap-1">
                     <Tag className="w-4 h-4" />
                     Coupon Discount ({discount}%)
@@ -530,8 +532,8 @@ const Cart = () => {
                   <span className="font-semibold">-₹
                     {/* {discountAmount.toFixed(2)} */}
                   </span>
-                </div>
-                {/* )} */}
+                </div>}
+               
 
                 <div className="flex justify-between text-gray-700">
                   <span className="flex items-center gap-1">

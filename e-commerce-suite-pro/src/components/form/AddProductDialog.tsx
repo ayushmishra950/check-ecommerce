@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {Select, SelectContent, SelectValue, SelectTrigger, SelectItem, SelectLabel} from "@/components/ui/select";
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -48,7 +49,7 @@ const AddProductDialog = ({ open, onOpenChange, initialData, setProductListRefre
         price: initialData.price || "",
         stock: initialData.stock || "",
         description: initialData.description || "",
-        images: [],
+        images: initialData?.images || [],
         isActive: initialData?.isActive || false,
         discount: initialData?.discount || 0,
         discountType: initialData?.discountType || "percentage"
@@ -56,7 +57,7 @@ const AddProductDialog = ({ open, onOpenChange, initialData, setProductListRefre
       setImagePreviews(initialData?.images)
     }
   }, [initialData]);
-
+ 
   const resetForm = () => {
     setFormData({
       name: "",
@@ -155,7 +156,8 @@ const AddProductDialog = ({ open, onOpenChange, initialData, setProductListRefre
     try {
       const res = await getCategory(obj);
       // setCategoryList(res?.data?.data);
-      dispatch(setCategoryList(res.data.data))
+      dispatch(setCategoryList(res.data.data));
+      setCategoryListRefresh(false);
     }
     catch (err) {
       console.log(err);
@@ -197,21 +199,31 @@ const AddProductDialog = ({ open, onOpenChange, initialData, setProductListRefre
 
               <div className="space-y-1">
                 <Label className="text-xs">Category</Label>
-                <select
-                  name="category"
-                  value={formData.category}
-                  onChange={(e) =>
-                    setFormData({ ...formData, category: e.target.value })
+                <Select value={formData?.category}
+                 onValueChange={(value)=> {if(value==="add"){setIsOpen(true)}else{setFormData({...formData, category:value})}}} >
+                   <SelectTrigger>
+                    <SelectValue placeholder="Select Category" />
+                  </SelectTrigger>
+                 <SelectContent className="max-h-[250px]">
+                  {
+                    categoryList.length >0 && (
+                      categoryList?.map((v)=> (
+                        <SelectItem value={v?._id} className="text-xs cursor-pointer">{v?.name}</SelectItem>
+                      ))
+                    )
                   }
-                  className="h-8 w-full rounded-md border px-2 text-xs"
-                >
-                  <option value="">Select</option>
-                  {categoryList.map((v) => (
-                    <option key={v._id} value={v._id}>
-                      {v.name}
-                    </option>
-                  ))}
-                </select>
+                  <SelectItem value="add" className="bg-blue-500 text-white text-xs cursor-pointer pl-16">Add Category</SelectItem>
+                   
+                 </SelectContent>
+                </Select>
+                {
+                  categoryList?.length ===0 && (
+                    <div>
+                      <p className="text-xs text-red-500 mt-1">Please Add At List One Category.</p>
+                      <button onClick={()=>{setIsOpen(true)}} className="bg-blue-500 p-1 text-white rounded  text-xs w-[200px]" type="button">Add Category</button>
+                    </div>
+                  )
+                }
               </div>
             </div>
 
@@ -292,8 +304,10 @@ const AddProductDialog = ({ open, onOpenChange, initialData, setProductListRefre
                   multiple
                   onChange={handleChange}
                   ref={fileInputRef}
+                  disabled={formData?.images.length===4}
                   className="h-8 text-xs placeholder:text-[2px]"
                 />
+               {formData?.images.length === 4 && <p className="text-xs text-red-500">Max allow 4 Select Image.</p>}
               </div>
 
               <div className="space-y-1">

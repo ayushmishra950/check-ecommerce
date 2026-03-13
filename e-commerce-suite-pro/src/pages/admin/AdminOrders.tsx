@@ -19,6 +19,10 @@ import {
 } from '@/components/ui/dropdown-menu';
 import {getAllOrder} from "@/services/service";
 import {formatDate} from "@/services/allFunction";
+import {Dialog, DialogContent, DialogTitle, DialogDescription, DialogHeader} from "@/components/ui/dialog";
+import {orderStages} from "@/services/allFunction";
+import { Label } from '@/components/ui/label';
+
 
 const orders = [
   { id: '#ORD-001', customer: 'John Doe', email: 'john@example.com', items: 3, total: 299.99, status: 'delivered', date: '2024-01-20' },
@@ -44,6 +48,7 @@ const AdminOrders = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [orderList, setOrderList] = useState([]);
+  const [statusDialogOpen, setStatusDialogOpen] = useState(false);
 
   const filteredOrders = orderList.filter(order => {
     const matchesSearch = order._id.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -73,6 +78,7 @@ const AdminOrders = () => {
   console.log(filteredOrders)
 
   return (
+    <>
     <div className="space-y-6">
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4">
@@ -146,7 +152,7 @@ const AdminOrders = () => {
                             <Eye className="h-4 w-4 mr-2" />
                             View Details
                           </DropdownMenuItem>
-                          <DropdownMenuItem>Update Status</DropdownMenuItem>
+                          <DropdownMenuItem onClick={()=>{setStatusDialogOpen(true)}}>Update Status</DropdownMenuItem>
                           <DropdownMenuItem className="text-destructive">Cancel Order</DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -159,6 +165,28 @@ const AdminOrders = () => {
         </CardContent>
       </Card>
     </div>
+       <Dialog open={statusDialogOpen} onOpenChange={setStatusDialogOpen} >
+       <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Status Update</DialogTitle>
+          <DialogDescription>Status Update</DialogDescription>
+        </DialogHeader>
+        <Label>Status Update</Label>
+        <Select>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          {
+            orderStages?.map((v)=>(
+              <>
+               <SelectItem value={v}>{v}</SelectItem>
+              </>
+            ))
+          }
+        </Select>
+       </DialogContent>
+      </Dialog>
+    </>
   );
 };
 

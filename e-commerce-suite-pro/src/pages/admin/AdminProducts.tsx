@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, } from '@/components/ui/dropdown-menu';
-import AddCategoryDialog from "@/components/form/AddProductDialog";
+import AddProductDialog from "@/components/form/AddProductDialog";
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { getProduct, deleteProduct, productStatus } from "@/services/service";
@@ -24,7 +24,7 @@ const AdminProducts = () => {
   const [initialData, setInitialData] = useState(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
-  const [isDeleteLoading, setIsDeleteLoading] = useState(false)
+  const [isDeleteLoading, setIsDeleteLoading] = useState(false);
 
   const filteredProducts = ProductList?.filter(product =>
     product.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -99,7 +99,7 @@ const AdminProducts = () => {
   return (
     <>
       <DeleteModal buttonName='Delete' isOpen={isDeleteDialogOpen} isDeleteLoading={isDeleteLoading} onClose={() => { setIsDeleteDialogOpen(false) }} onConfirm={handleDeleteProduct} title='Confirm Deletion.' description='This action will permanently delete the Product. Are you sure you want to proceed?' />
-      <AddCategoryDialog open={productDialogOpen} setProductListRefresh={setProductListRefresh} initialData={initialData} onOpenChange={() => { setProductDialogOpen(false) }} />
+      <AddProductDialog open={productDialogOpen} setProductListRefresh={setProductListRefresh} initialData={initialData} onOpenChange={() => { setProductDialogOpen(false) }} />
       <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">

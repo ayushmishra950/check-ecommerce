@@ -33,10 +33,10 @@ const validateShopAndAdmin = async (shopId, adminId) => {
 
 const createProduct = async (req, res) => {
   try {
-    const { shopId, adminId, name,price,category, stock, description, isActive, discount, discountType  } = req.body;
+    const { shopId, adminId,brand, name,price,category, stock, description, isActive, discount, discountType  } = req.body;
     const images = req.files?.images || [];
    
-    if(!shopId || !adminId || !name || !category  || !price ||  !stock || !description || !isActive){
+    if(!shopId || !adminId || !brand || !name || !category  || !price ||  !stock || !description || !isActive){
     return res.status(400).json({message:"All Fields Are Required."})
     }
 
@@ -72,6 +72,7 @@ const createProduct = async (req, res) => {
       price, stock, description, isActive,
       shopId,
       adminId,
+      brand,
       images: imageUrls,
       category,
       discount,
@@ -271,6 +272,7 @@ const updateProduct = async (req, res) => {
       shopId,
       adminId,
       name,
+      brand,
       price,
       category,
       stock,
@@ -352,6 +354,7 @@ const updateProduct = async (req, res) => {
     product.isActive = isActive ?? product.isActive;
     product.discount = discount ?? product.discount;
     product.discountType = discountType ?? product.discountType;
+    product.brand = brand ?? product.brand;
 
     await product.save();
 

@@ -93,6 +93,7 @@ export const ProductCard = ({ product }) => {
   
   if (!product) return null;
 
+
   return (
     <Card
       className="group overflow-hidden border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-lg"
@@ -168,9 +169,12 @@ export const ProductCard = ({ product }) => {
         <div className="flex items-center gap-2 mb-2">
           <div className="flex items-center gap-1">
             <Star className="h-4 w-4 fill-primary text-primary" />
-            <span className="text-sm font-medium">{product.rating}</span>
-          </div>
-          <span className="text-sm text-muted-foreground">({product.numReviews})</span>
+<span className="text-sm font-medium">
+  {product?.rating?.length
+    ? (product.rating.reduce((acc, r) => acc + r.rating, 0) / product.rating.length).toFixed(1)
+    : 0}
+</span>          </div>
+          <span className="text-sm text-muted-foreground">({product.rating.length}) reviews</span>
         </div>
 
        <div className="flex items-center gap-2">

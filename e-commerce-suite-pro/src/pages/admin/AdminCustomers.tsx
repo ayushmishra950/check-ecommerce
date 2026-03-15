@@ -78,6 +78,7 @@ const AdminCustomers = () => {
     const [blockDetailOpen,setBlockDetailOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [blockListRefresh, setBlockListRefresh] = useState(false);
+  const [isBlock, setIsBlock] = useState(false);
 const [reason, setReason] = useState("");
 const[blockLoading, setBlockLoading] = useState(false);
 const currentDate = new Date().toISOString().split("T")[0];
@@ -193,12 +194,12 @@ const currentDate = new Date().toISOString().split("T")[0];
               </thead>
               <tbody>
                 {filteredCustomers.map((customer) => {
-                  const isBlocked = blockCustomerList.find((v)=> v?.user===customer?.user)
+                  const isBlocked = blockCustomerList.find((v)=> v?.user===customer?.user);
                   return(
                   <tr
                     key={customer.id}
                     className="border-b last:border-0 hover:bg-muted/30 transition-colors cursor-pointer"
-                    onClick={()=>{setSelectedCustomer(customer);setCustomerDetailOpen(true)}}
+                    onClick={()=>{setIsBlock(isBlocked?true:false);setSelectedCustomer(customer);setCustomerDetailOpen(true)}}
                   >
                     <td className="py-4 px-6">
                       <div>
@@ -233,11 +234,11 @@ const currentDate = new Date().toISOString().split("T")[0];
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={(e)=>{e.stopPropagation();setSelectedCustomer(customer);setCustomerDetailOpen(true)}} className='cursor-pointer'>
+                          <DropdownMenuItem onClick={(e)=>{e.stopPropagation();setIsBlock(isBlocked?true:false);setSelectedCustomer(customer);setCustomerDetailOpen(true)}} className='cursor-pointer'>
                             <Eye className="h-4 w-4 mr-2" />
                             View Profile
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={(e) => {e.stopPropagation();setSelectedCustomer(customer);setBlockDetailOpen(true)}} className='cursor-pointer'>
+                          <DropdownMenuItem onClick={(e) => {e.stopPropagation();setIsBlock(isBlocked?true:false);setSelectedCustomer(customer);setBlockDetailOpen(true)}} className='cursor-pointer'>
                             <UserX className="h-4 w-4 mr-2 " />
                            {isBlocked?"UnBlock":"Block"} Customer
                           </DropdownMenuItem>
@@ -256,9 +257,9 @@ const currentDate = new Date().toISOString().split("T")[0];
    <Dialog open={blockDetailOpen} onOpenChange={setBlockDetailOpen}>
   <DialogContent>
     <DialogHeader>
-      <DialogTitle>Block Customer</DialogTitle>
+      <DialogTitle>{isBlock?"UnBlock":"Block"} Customer</DialogTitle>
       <DialogDescription>
-        Please provide the details before blocking this customer.
+        Please provide the details before {isBlock?"UnBlock":"Block"} this customer.
       </DialogDescription>
     </DialogHeader>
 
@@ -275,7 +276,7 @@ const currentDate = new Date().toISOString().split("T")[0];
         />
       </div>
       <div>
-        <label className="text-sm font-medium">Block Date</label>
+        <label className="text-sm font-medium">{isBlock?"UnBlock":"Block"} Date</label>
         <input
           type="date"
           defaultValue={currentDate}
@@ -288,7 +289,7 @@ const currentDate = new Date().toISOString().split("T")[0];
       <div>
         <label className="text-sm font-medium">Reason</label>
         <textarea
-          placeholder="Enter reason for blocking this customer..."
+          placeholder={`Enter reason for ${isBlock?"UnBlock":"Block"} this customer...`}
           value={reason}
           onChange={(e) => setReason(e.target.value)}
           className="w-full border rounded-md px-3 py-2 mt-1 min-h-[100px]"
@@ -300,10 +301,10 @@ const currentDate = new Date().toISOString().split("T")[0];
         <button
         disabled={blockLoading || !reason}
         onClick={handleBlockAndUnBlockCustomer}
-          className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-md"
+          className="bg-yellow-500 hover:bg-yellow-600 text-white text-xs px-4 py-2 rounded-md"
         >
-          {blockLoading && <Loader2 />}
-          Block Customer
+          {blockLoading && <Loader2 className='animate-spin h-4 w-4 text-center' />}
+          {isBlock?"UnBlock":"Block"} Customer
         </button>
       </div>
 
@@ -313,7 +314,11 @@ const currentDate = new Date().toISOString().split("T")[0];
    <Sheet open={customerDetailOpen} onOpenChange={setCustomerDetailOpen}>
   <SheetContent className="overflow-y-auto w-[500px]">
     <SheetHeader>
-      <SheetTitle>Customer Detail</SheetTitle>
+      <SheetTitle className='flex justify-between mt-4'>
+        <span>Customer Detail</span>
+        <div> <Badge variant={getStatusVariant(isBlock?"blocked":"active")}>
+                        {isBlock?"Block":"Active"} </Badge></div>
+      </SheetTitle>
       <SheetDescription>Order Information</SheetDescription>
     </SheetHeader>
 

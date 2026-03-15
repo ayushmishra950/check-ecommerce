@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Heart, Minus, Plus, ShoppingCart, Star, Truck, Shield, RotateCcw, Check, X, Share2, Facebook, Twitter, Copy, Package, Clock, ChevronRight, MessageCircle, ThumbsUp, StarHalf, Zap, Award, TrendingUp} from 'lucide-react';
+import { ArrowLeft, Heart, Minus, Plus, ShoppingCart, Star, Truck, Shield, RotateCcw, Check, X, Share2, Facebook, Twitter, Copy, Package, Clock, ChevronRight, MessageCircle, ThumbsUp, StarHalf, Zap, Award, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { getProductById, getProductByCategoryId, addCart } from "@/services/service";
 import { addToCart, incrementQuantity, decrementQuantity } from '@/redux-toolkit/slice/cartSlice';
 import { useAppDispatch, useAppSelector } from '@/redux-toolkit/hooks/hook';
-import {calculateDiscount} from "@/services/allFunction";
+import { calculateDiscount } from "@/services/allFunction";
 
 // Dummy Reviews Data
 const dummyReviews = [
@@ -98,16 +98,16 @@ const ProductDetail = () => {
     try {
       const res = await getProductById(id);
       if (res.status === 200) {
-         setProduct(res?.data?.data);
+        setProduct(res?.data?.data);
         const id = res.data.data?.category?._id;
-        if(!id) return;
+        if (!id) return;
         const productData = await getProductByCategoryId(id);
         console.log(productData);
-        if(productData.status===200){
+        if (productData.status === 200) {
           setRelatedProducts(productData?.data?.data)
         }
-        
-       
+
+
       }
     } catch (err) {
       console.log(err);
@@ -120,23 +120,23 @@ const ProductDetail = () => {
   }, []);
 
 
-  
-    const handleAddCart = async (product) => {
-      let quantity = 1;
-      try {
-        const res = await addCart(product?._id, quantity);
-        console.log(res)
-        if (res.status === 201) {
-          toast({ title: "Add Item To Cart.", description: res?.data?.message })
-          dispatch(addToCart(product))
-  
-        }
-      }
-      catch (err) {
-        console.log(err);
-        toast({ title: "Error Add Cart.", description: err?.response?.data?.message || err?.message, variant: "destructive" })
+
+  const handleAddCart = async (product) => {
+    let quantity = 1;
+    try {
+      const res = await addCart(product?._id, quantity);
+      console.log(res)
+      if (res.status === 201) {
+        toast({ title: "Add Item To Cart.", description: res?.data?.message })
+        dispatch(addToCart(product))
+
       }
     }
+    catch (err) {
+      console.log(err);
+      toast({ title: "Error Add Cart.", description: err?.response?.data?.message || err?.message, variant: "destructive" })
+    }
+  }
 
   const handleShare = (platform: string) => {
     const url = window.location.href;
@@ -178,7 +178,7 @@ const ProductDetail = () => {
       </div>
     );
   }
-
+  console.log(relatedProducts)
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
       <div className="container mx-auto px-4 py-8">
@@ -333,8 +333,17 @@ const ProductDetail = () => {
                     />
                   ))}
                 </div>
-                <span className="text-lg font-semibold text-gray-900">{averageRating.toFixed(1)}</span>
-                <span className="text-gray-600">({dummyReviews.length} reviews)</span>
+                <span className="text-lg font-semibold text-gray-900">
+                  {
+                    product?.rating?.length
+                      ? (product.rating.reduce((acc, r) => acc + r.rating, 0) / product.rating.length).toFixed(1)
+                      : 0
+                  }
+                </span>
+
+                <span className="text-gray-600">
+                  ({product?.rating?.length} reviews)
+                </span>
               </div>
 
               {/* Price */}
@@ -376,7 +385,7 @@ const ProductDetail = () => {
                 </div>
               ))}
 
-            
+
               {/* Action Buttons */}
               <div className="flex gap-4 pt-2">
                 <Button
@@ -613,7 +622,7 @@ const ProductDetail = () => {
             </Link>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {relatedProducts.filter((p)=> p?._id !== id).map((relatedProduct) => (
+            {relatedProducts.filter((p) => p?._id !== id).map((relatedProduct) => (
               <div
                 key={relatedProduct._id}
                 onClick={() => navigate(`/product/${relatedProduct._id}`)}
@@ -629,17 +638,33 @@ const ProductDetail = () => {
                 <div className="p-4 space-y-2">
                   <h3 className="font-semibold text-gray-900 truncate">{relatedProduct?.name}</h3>
                   <div className="flex items-center gap-1">
-                    {[...Array(5)].map((_, i) => (
+                    {/* {[...Array(5)].map((_, i) => (
                       <Star
                         key={i}
                         className={cn(
                           'w-3 h-3',
-                          i < Math.floor(relatedProduct.rating)
+                          i < Math.floor(relatedProduct.rating?.[i]?.rating)
                             ? 'fill-yellow-400 text-yellow-400'
                             : 'text-gray-300'
                         )}
                       />
-                    ))}
+                    ))} */}
+
+                    {[...Array(5)].map((_, i) => {
+                      return(
+                      <Star
+                        key={i}
+                        className={cn(
+                          "w-3 h-3",
+                          i < Math.floor(
+                            relatedProduct?.rating?.reduce((acc, r) => acc + r.rating, 0) /
+                            (relatedProduct?.rating?.length || 1)
+                          )
+                            ? "fill-yellow-400 text-yellow-400"
+                            : "text-gray-300"
+                        )}
+                      />
+                    )})}
                   </div>
                   <div className="flex items-baseline gap-2">
                     <span className="text-lg font-bold text-gray-900">₹{relatedProduct?.price - calculateDiscount(relatedProduct)}</span>

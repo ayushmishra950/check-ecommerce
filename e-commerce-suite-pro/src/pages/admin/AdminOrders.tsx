@@ -12,6 +12,7 @@ import {Dialog, DialogContent, DialogTitle, DialogDescription, DialogHeader, Dia
 import {orderStages, getStatusColorFromOrder} from "@/services/allFunction";
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 
 
 const orders = [
@@ -33,6 +34,8 @@ const AdminOrders = () => {
   const [currentStatus, setCurrentStatus] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [orderId, setOrderId] = useState("");
+  const [orderData, setOrderData] = useState(null);
+  const [orderDialogOpen, setOrderDialogOpen] = useState(false);
 
   const filteredOrders = orderList.filter(order => {
     const matchesSearch = order._id.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -59,15 +62,18 @@ const AdminOrders = () => {
     handleGetOrder()
   },[])
 
-  const handleUpdateOrderStatus = async()=>{
-    let obj = {status: currentStatus, orderId:orderId}
+  const handleUpdateOrderStatus = async(id?:string, status?:string)=>{
+   const finalOrderId = id || orderId;
+  const finalStatus = status || currentStatus;
+
+  let obj = { status: finalStatus, orderId: finalOrderId };
     try{
       setIsLoading(true);
       const res = await updateOrderStatus(obj);
       console.log(res);
       if(res.status===200){
         handleGetOrder();
-        toast({title:"Order Status Updated.", description:"Order status Updated."})
+        toast({title:"Order Status Updated.", description:`${(id && status)?"Order Cancelled Successfully." : "Order Updated Successfully." }`})
       }
     }
     catch(err){
@@ -81,6 +87,7 @@ const AdminOrders = () => {
       setCurrentStatus("");
     }
   }
+  console.log(orderData)
   return (
     <>
     <div className="space-y-6">
@@ -128,7 +135,7 @@ const AdminOrders = () => {
               </thead>
               <tbody>
                 {filteredOrders.map((order, i) => (
-                  <tr key={order._id} className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
+                  <tr key={order._id} className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors cursor-pointer" onClick={()=>{setOrderData(order); setOrderDialogOpen(true)}}>
                     <td className="py-4 px-6 text-sm font-medium text-foreground">ORD-{new Date().getFullYear()}-{i+1}</td>
                     <td className="py-4 px-6">
                       <div>
@@ -152,12 +159,16 @@ const AdminOrders = () => {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem className='cursor-pointer'>
+                          <DropdownMenuItem className='cursor-pointer'onClick={()=>{setOrderData(order); setOrderDialogOpen(true)}} >
                             <Eye className="h-4 w-4 mr-2" />
                             View Details
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={()=>{setOrderId(order?._id);setCurrentStatus(order?.orderStatus);setStatusDialogOpen(true)}} className='cursor-pointer'>Update Status</DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive cursor-pointer">Cancel Order</DropdownMenuItem>
+                        { order?.orderStatus !== "cancelled" && 
+                        <>
+                          <DropdownMenuItem onClick={(e)=>{e.stopPropagation(); setOrderId(order?._id);setCurrentStatus(order?.orderStatus);setStatusDialogOpen(true)}} className='cursor-pointer'>Update Status</DropdownMenuItem>
+                          <DropdownMenuItem className="text-destructive cursor-pointer" onClick={(e)=>{e.stopPropagation(); handleUpdateOrderStatus(order?._id, "cancelled");}}>Cancel Order</DropdownMenuItem>
+                     </>
+                       }
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </td>
@@ -206,7 +217,7 @@ const AdminOrders = () => {
         Cancel
       </Button>
 
-      <Button type="button" variant="default" onClick={handleUpdateOrderStatus} disabled={isLoading}>
+      <Button type="button" variant="default" onClick={()=> {handleUpdateOrderStatus()}} disabled={isLoading}>
         {isLoading ? "Updating..." : "Update Status"}
         {isLoading && <Loader2 className='animate-spin' />}
       </Button>
@@ -214,6 +225,119 @@ const AdminOrders = () => {
 
   </DialogContent>
 </Dialog>
+
+<Sheet open={orderDialogOpen} onOpenChange={setOrderDialogOpen}>
+  <SheetContent className="overflow-y-auto w-[420px] sm:w-[540px]">
+
+    <SheetHeader>
+      <SheetTitle>Order Details</SheetTitle>
+      <SheetDescription>
+        Complete information about this order
+      </SheetDescription>
+    </SheetHeader>
+
+    {orderData && (
+      <div className="mt-6 space-y-6">
+
+        {/* Order Info */}
+        <div className="space-y-2">
+          <h3 className="font-semibold text-lg">Order Info</h3>
+
+          <div className="text-sm text-muted-foreground">
+            <p><span className="font-medium text-foreground">Order ID:</span> {orderData._id}</p>
+            <p><span className="font-medium text-foreground">Status:</span>  <Badge className={getStatusColorFromOrder(orderData.orderStatus)}> {orderData.orderStatus}</Badge></p>
+            <p><span className="font-medium text-foreground">Payment Method:</span> {orderData.paymentMethod}</p>
+            <p><span className="font-medium text-foreground">Payment Status:</span> {orderData.paymentStatus}</p>
+            <p><span className="font-medium text-foreground">Created:</span> {new Date(orderData.createdAt).toLocaleString()}</p>
+          </div>
+        </div>
+
+        {/* Customer Info */}
+        <div className="space-y-2">
+          <h3 className="font-semibold text-lg">Customer</h3>
+
+          <div className="text-sm text-muted-foreground">
+            <p><span className="font-medium text-foreground">Name:</span> {orderData.user?.name}</p>
+            <p><span className="font-medium text-foreground">Email:</span> {orderData.user?.email}</p>
+          </div>
+        </div>
+
+        {/* Shipping Address */}
+        <div className="space-y-2">
+          <h3 className="font-semibold text-lg">Shipping Address</h3>
+
+          <div className="text-sm text-muted-foreground">
+            <p>{orderData.shippingAddress?.name}</p>
+            <p>{orderData.shippingAddress?.phone}</p>
+            <p>{orderData.shippingAddress?.email}</p>
+            <p>{orderData.shippingAddress?.address}</p>
+            <p>{orderData.shippingAddress?.city}</p>
+          </div>
+        </div>
+
+        {/* Order Items */}
+        <div className="space-y-2">
+          <h3 className="font-semibold text-lg">Items</h3>
+
+          <div className="space-y-3">
+            {orderData.orderItems?.map((item:any) => (
+              <div
+                key={item._id}
+                className="border rounded-lg p-3 flex justify-between"
+              >
+                <div>
+                  <p className="font-medium">{item.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    Qty: {item.quantity}
+                  </p>
+
+                  {item.discount > 0 && (
+                    <p className="text-xs text-muted-foreground">
+                      Discount: {item.discount} {item.discountType}
+                    </p>
+                  )}
+                </div>
+
+                <div className="text-sm font-medium">
+                  ₹{item.finalPrice}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Price Summary */}
+        <div className="space-y-2">
+          <h3 className="font-semibold text-lg">Price Summary</h3>
+
+          <div className="text-sm space-y-1">
+            <div className="flex justify-between">
+              <span>Subtotal</span>
+              <span>₹{orderData.subtotal}</span>
+            </div>
+
+            <div className="flex justify-between">
+              <span>Tax</span>
+              <span>₹{orderData.tax}</span>
+            </div>
+
+            <div className="flex justify-between">
+              <span>Shipping</span>
+              <span>₹{orderData.shippingCharge}</span>
+            </div>
+
+            <div className="flex justify-between font-semibold text-base border-t pt-2">
+              <span>Total</span>
+              <span>₹{orderData.totalAmount}</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    )}
+
+  </SheetContent>
+</Sheet>
     </>
   );
 };

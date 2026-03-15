@@ -1,20 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import {
-  Minus,
-  Plus,
-  Trash2,
-  ShoppingBag,
-  ArrowRight,
-  Tag,
-  Heart,
-  Truck,
-  Shield,
-  Package,
-  Gift,
-  ArrowLeft,
-  Sparkles,
-  Check,
-  X,
+import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, Tag, Heart, Truck, Shield, Package, Gift, ArrowLeft, Sparkles, Check, X,
   Star,
   BadgePercent
 } from 'lucide-react';

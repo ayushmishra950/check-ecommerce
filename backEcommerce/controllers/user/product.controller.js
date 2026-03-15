@@ -18,7 +18,7 @@ const getAllCategory = async(req,res) => {
 } 
 const getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find({ isActive: true });
+    const products = await Product.find({ isActive: true }).populate("rating");
 
     res.status(200).json({
       success: true,
@@ -43,7 +43,7 @@ const getProductById = async (req, res) => {
   const {id} = req?.params;
   console.log(id)
   try {
-    const product = await Product.findById(id).populate("category");
+    const product = await Product.findById(id).populate("category").populate("rating");
 
     if (!product || !product.isActive) {
       return res.status(404).json({
@@ -115,7 +115,7 @@ const getProductsByCategory = async (req, res) => {
     const products = await Product.find({
       category: category,
       isActive: true,
-    }).populate("category","name description");
+    }).populate("category","name description").populate("rating");
  
     res.status(200).json({
       success: true,

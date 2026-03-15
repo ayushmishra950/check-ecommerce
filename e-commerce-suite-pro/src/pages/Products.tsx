@@ -62,11 +62,21 @@ const Products = () => {
   );
 
   // Rating filter
+  // if (selectedRatings.length > 0) {
+  //   filteredProducts = filteredProducts.filter((p: any) =>
+  //     selectedRatings.some(rating => Math.floor(p.rating || 0) >= rating)
+  //   );
+  // }
+
   if (selectedRatings.length > 0) {
-    filteredProducts = filteredProducts.filter((p: any) =>
-      selectedRatings.some(rating => Math.floor(p.rating || 0) >= rating)
-    );
-  }
+  filteredProducts = filteredProducts.filter((p: any) => {
+    const avgRating =
+      p.rating?.reduce((acc: number, r: any) => acc + r.rating, 0) /
+        p.rating?.length || 0;
+
+    return selectedRatings.some(rating => Math.floor(avgRating) >= rating);
+  });
+}
 
   // Sort products
   switch (sortBy) {

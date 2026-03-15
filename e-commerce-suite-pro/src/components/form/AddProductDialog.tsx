@@ -1,11 +1,11 @@
 import { useEffect, useState, useRef } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import {Select, SelectContent, SelectValue, SelectTrigger, SelectItem, SelectLabel} from "@/components/ui/select";
+import { Select, SelectContent, SelectValue, SelectTrigger, SelectItem, SelectLabel } from "@/components/ui/select";
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Loader2, X } from "lucide-react"
+import { ChevronDown, Loader2, X } from "lucide-react"
 import { useAuth } from "@/context/AuthContext"
 import { useToast } from "@/hooks/use-toast"
 import { addProduct, updateProduct, getCategory } from "@/services/service";
@@ -23,6 +23,7 @@ const AddProductDialog = ({ open, onOpenChange, initialData, setProductListRefre
   const [loading, setLoading] = useState(false)
   const [imagePreviews, setImagePreviews] = useState([])
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const formRef = useRef(null);
   // const [categoryList, setCategoryList] = useState<any>([]);
   const [formData, setFormData] = useState({
     name: "",
@@ -33,12 +34,26 @@ const AddProductDialog = ({ open, onOpenChange, initialData, setProductListRefre
     images: [], // 👈 array
     isActive: false,
     discount: 0,
+    brand:"",
     discountType: "percentage"
   })
   const dispatch = useAppDispatch();
   const categoryList = useAppSelector((state) => state?.category?.categoryList);
 
   const isEdit = Boolean(initialData);
+
+
+  const [showArrow, setShowArrow] = useState(true);
+
+  const handleScroll = () => {
+    if (!formRef.current) return;
+
+    if (formRef.current.scrollTop > 10) {
+      setShowArrow(false);
+    } else {
+      setShowArrow(true);
+    }
+  };
 
   useEffect(() => {
     console.log(initialData)
@@ -52,23 +67,25 @@ const AddProductDialog = ({ open, onOpenChange, initialData, setProductListRefre
         images: initialData?.images || [],
         isActive: initialData?.isActive || false,
         discount: initialData?.discount || 0,
-        discountType: initialData?.discountType || "percentage"
+        discountType: initialData?.discountType || "percentage",
+        brand: initialData?.brand || "",
       })
       setImagePreviews(initialData?.images)
     }
   }, [initialData]);
- 
+
   const resetForm = () => {
     setFormData({
       name: "",
       category: "",
       price: "",
+      brand:"",
       stock: "",
       description: "",
       images: [],
       isActive: false,
       discount: initialData?.discount || 0,
-        discountType: initialData?.discountType || "percentage"
+      discountType: initialData?.discountType || "percentage"
     })
     setImagePreviews([])
   }
@@ -175,14 +192,14 @@ const AddProductDialog = ({ open, onOpenChange, initialData, setProductListRefre
     <>
       <AddCategoryDialog isOpen={isOpen} onClose={() => { setIsOpen(false) }} initialData={null} setCategoryListRefresh={setCategoryListRefresh} />
       <Dialog open={open} onOpenChange={(open) => { resetForm(); onOpenChange(open); }}>
-        <DialogContent className="max-w-md p-4">
+        <DialogContent className="max-w-md  p-4">
           <DialogHeader className="mb-2">
             <DialogTitle className="text-sm font-semibold">
               {isEdit ? "Edit Product" : "Add New Product"}
             </DialogTitle>
           </DialogHeader>
 
-          <form className="space-y-2 text-sm" onSubmit={handleSubmit}>
+          <form ref={formRef} onScroll={handleScroll} className="relative space-y-1 text-sm max-h-[450px] overflow-y-auto no-scrollbar" onSubmit={handleSubmit}>
 
             {/* Name + Category */}
             <div className="grid grid-cols-2 gap-2">
@@ -200,27 +217,27 @@ const AddProductDialog = ({ open, onOpenChange, initialData, setProductListRefre
               <div className="space-y-1">
                 <Label className="text-xs">Category</Label>
                 <Select value={formData?.category}
-                 onValueChange={(value)=> {if(value==="add"){setIsOpen(true)}else{setFormData({...formData, category:value})}}} >
-                   <SelectTrigger>
+                  onValueChange={(value) => { if (value === "add") { setIsOpen(true) } else { setFormData({ ...formData, category: value }) } }} >
+                  <SelectTrigger className="h-8">
                     <SelectValue placeholder="Select Category" />
                   </SelectTrigger>
-                 <SelectContent className="max-h-[250px]">
-                  {
-                    categoryList?.length >0 && (
-                      categoryList?.map((v)=> (
-                        <SelectItem value={v?._id} className="text-xs cursor-pointer">{v?.name}</SelectItem>
-                      ))
-                    )
-                  }
-                  <SelectItem value="add" className="bg-blue-500 text-white text-xs cursor-pointer pl-16">Add Category</SelectItem>
-                   
-                 </SelectContent>
+                  <SelectContent className="max-h-[250px]">
+                    {
+                      categoryList?.length > 0 && (
+                        categoryList?.map((v) => (
+                          <SelectItem value={v?._id} className="text-xs cursor-pointer">{v?.name}</SelectItem>
+                        ))
+                      )
+                    }
+                    <SelectItem value="add" className="bg-blue-500 text-white text-xs cursor-pointer pl-16">Add Category</SelectItem>
+
+                  </SelectContent>
                 </Select>
                 {
-                  categoryList?.length ===0 && (
+                  categoryList?.length === 0 && (
                     <div>
                       <p className="text-xs text-red-500 mt-1">Please Add At List One Category.</p>
-                      <button onClick={()=>{setIsOpen(true)}} className="bg-blue-500 p-1 text-white rounded  text-xs w-[200px]" type="button">Add Category</button>
+                      <button onClick={() => { setIsOpen(true) }} className="bg-blue-500 p-1 text-white rounded  text-xs w-[200px]" type="button">Add Category</button>
                     </div>
                   )
                 }
@@ -254,32 +271,44 @@ const AddProductDialog = ({ open, onOpenChange, initialData, setProductListRefre
               </div>
             </div>
             {/* Discount + Type */}
-<div className="grid grid-cols-2 gap-2">
-  <div className="space-y-1">
-    <Label className="text-xs">Discount</Label>
-    <Input
-      name="discount"
-      type="number"
-      value={formData.discount}
-      onChange={handleChange}
-      className="h-8 px-2 text-xs"
-      placeholder="0"
-    />
-  </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-1">
+                <Label className="text-xs">Discount</Label>
+                <Input
+                  name="discount"
+                  type="number"
+                  value={formData.discount}
+                  onChange={handleChange}
+                  className="h-8 px-2 text-xs"
+                  placeholder="0"
+                />
+              </div>
 
-  <div className="space-y-1">
-    <Label className="text-xs">Discount Type</Label>
-    <select
-      name="discountType"
-      value={formData.discountType}
-      onChange={(e) => setFormData({ ...formData, discountType: e.target.value })}
-      className="h-8 w-full rounded-md border px-2 text-xs"
-    >
-      <option value="percentage">Percentage (%)</option>
-      <option value="fixed">Fixed (₹)</option>
-    </select>
-  </div>
-</div>
+              <div className="space-y-1">
+                <Label className="text-xs">Discount Type</Label>
+                <select
+                  name="discountType"
+                  value={formData.discountType}
+                  onChange={(e) => setFormData({ ...formData, discountType: e.target.value })}
+                  className="h-8 w-full rounded-md border px-2 text-xs"
+                >
+                  <option value="percentage">Percentage (%)</option>
+                  <option value="fixed">Fixed (₹)</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <Label className="text-xs">Brand Name</Label>
+              <Input
+                name="brand"
+                type="text"
+                value={formData.brand}
+                onChange={handleChange}
+                className="h-8 px-2 text-xs"
+                placeholder="ex--"
+              />
+            </div>
 
             {/* Description */}
             <div className="space-y-1">
@@ -304,10 +333,10 @@ const AddProductDialog = ({ open, onOpenChange, initialData, setProductListRefre
                   multiple
                   onChange={handleChange}
                   ref={fileInputRef}
-                  disabled={formData?.images.length===4}
+                  disabled={formData?.images.length === 4}
                   className="h-8 text-xs placeholder:text-[2px]"
                 />
-               {formData?.images.length === 4 && <p className="text-xs text-red-500">Max allow 4 Select Image.</p>}
+                {formData?.images.length === 4 && <p className="text-xs text-red-500">Max allow 4 Select Image.</p>}
               </div>
 
               <div className="space-y-1">
@@ -375,6 +404,10 @@ const AddProductDialog = ({ open, onOpenChange, initialData, setProductListRefre
                 {isEdit ? "Update" : "Add"} Product
               </Button>
             </div>
+
+            {imagePreviews.length !== 0 && showArrow && <div className="absolute bottom-5 left-1/2 -translate-x-1/2 pointer-events-none">
+              <ChevronDown className="h-6 w-6 animate-bounce text-gray-500" />
+            </div>}
 
           </form>
         </DialogContent>

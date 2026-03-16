@@ -160,12 +160,27 @@ const ProductDetail = () => {
   const currentItem = items.find((i) => i?._id === product?._id);
   const currentQuantity = currentItem?.quantity || 0;
 
-  const averageRating = dummyReviews.reduce((acc, review) => acc + review.rating, 0) / dummyReviews.length;
-  const ratingDistribution = [5, 4, 3, 2, 1].map(rating => ({
-    rating,
-    count: dummyReviews.filter(r => r.rating === rating).length,
-    percentage: (dummyReviews.filter(r => r.rating === rating).length / dummyReviews.length) * 100
-  }));
+const averageRating = product?.rating?.length > 0 ? Number((product.rating.reduce((acc, r) => acc + r.rating, 0) / product.rating.length)) : 0; 
+  //  const ratingDistribution = [5, 4, 3, 2, 1].map(rating => ({
+  //   rating,
+  //   count: dummyReviews.filter(r => r.rating === rating).length,
+  //   percentage: (dummyReviews.filter(r => r.rating === rating).length / dummyReviews.length) * 100
+  // }));
+
+  const ratings = product?.rating || [];
+
+const ratingDistribution = [5,4,3,2,1].map((star) => {
+  const count = ratings.filter(r => r.rating === star).length;
+
+  const percentage =
+    ratings.length > 0 ? (count / ratings.length) * 100 : 0;
+
+  return {
+    rating: star,
+    count,
+    percentage
+  };
+});
 
   if (!product) {
     return (
@@ -178,7 +193,7 @@ const ProductDetail = () => {
       </div>
     );
   }
-  console.log(relatedProducts)
+  console.log(product)
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
       <div className="container mx-auto px-4 py-8">
@@ -334,11 +349,7 @@ const ProductDetail = () => {
                   ))}
                 </div>
                 <span className="text-lg font-semibold text-gray-900">
-                  {
-                    product?.rating?.length
-                      ? (product.rating.reduce((acc, r) => acc + r.rating, 0) / product.rating.length).toFixed(1)
-                      : 0
-                  }
+                  {averageRating?averageRating.toFixed(1) :0 }
                 </span>
 
                 <span className="text-gray-600">
@@ -458,7 +469,7 @@ const ProductDetail = () => {
               <TabsTrigger value="description" className="text-base">Description</TabsTrigger>
               <TabsTrigger value="specifications" className="text-base">Specifications</TabsTrigger>
               <TabsTrigger value="reviews" className="text-base">
-                Reviews ({dummyReviews.length})
+                Reviews ({product?.rating?.length})
               </TabsTrigger>
             </TabsList>
 
@@ -519,7 +530,7 @@ const ProductDetail = () => {
               {/* Rating Summary */}
               <div className="grid md:grid-cols-2 gap-8 pb-8 border-b border-gray-200">
                 <div className="text-center space-y-4">
-                  <div className="text-6xl font-bold text-gray-900">{averageRating.toFixed(1)}</div>
+                  <div className="text-6xl font-bold text-gray-900">{averageRating? averageRating.toFixed(1) : 0 }</div>
                   <div className="flex items-center justify-center gap-1">
                     {[...Array(5)].map((_, i) => (
                       <Star
@@ -533,7 +544,7 @@ const ProductDetail = () => {
                       />
                     ))}
                   </div>
-                  <p className="text-gray-600">Based on {dummyReviews.length} reviews</p>
+                  <p className="text-gray-600">Based on {product?.rating?.length} reviews</p>
                 </div>
 
                 <div className="space-y-3">
@@ -638,17 +649,6 @@ const ProductDetail = () => {
                 <div className="p-4 space-y-2">
                   <h3 className="font-semibold text-gray-900 truncate">{relatedProduct?.name}</h3>
                   <div className="flex items-center gap-1">
-                    {/* {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className={cn(
-                          'w-3 h-3',
-                          i < Math.floor(relatedProduct.rating?.[i]?.rating)
-                            ? 'fill-yellow-400 text-yellow-400'
-                            : 'text-gray-300'
-                        )}
-                      />
-                    ))} */}
 
                     {[...Array(5)].map((_, i) => {
                       return(

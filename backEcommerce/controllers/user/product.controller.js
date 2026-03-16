@@ -43,7 +43,13 @@ const getProductById = async (req, res) => {
   const {id} = req?.params;
   console.log(id)
   try {
-    const product = await Product.findById(id).populate("category").populate("rating");
+    const product = await Product.findById(id).populate("category").populate({
+      path:"rating",
+      populate : {
+        path:"userId",
+        select:"name"
+      }
+    });
 
     if (!product || !product.isActive) {
       return res.status(404).json({

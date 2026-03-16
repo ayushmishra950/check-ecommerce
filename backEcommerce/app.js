@@ -23,6 +23,7 @@ const adminCouponRoutes = require("./routes/admin/coupon.route");
 const adminCategoryRoutes = require("./routes/admin/category.route");
 const adminUserRoutes = require("./routes/admin/user.route");
 const adminBlockRoutes = require("./routes/admin/blockUser.route");
+const adminDashboardRoutes = require("./routes/admin/dashboard.route");
 
 
 //  Super admin k liye
@@ -56,6 +57,7 @@ app.use("/api/admin/coupon", protect, adminCouponRoutes);
 app.use("/api/admin/category", protect, adminCategoryRoutes);
 app.use("/api/admin/user", protect, adminUserRoutes);
 app.use("/api/admin/block", protect, adminBlockRoutes);
+app.use("/api/admin/dashboard", protect, adminDashboardRoutes);
 // Super Admin Routes
 app.use("/api/superadmin/shop", superAdminShopRoute);
 

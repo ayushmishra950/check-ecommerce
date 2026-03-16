@@ -565,12 +565,12 @@ const ratingDistribution = [5,4,3,2,1].map((star) => {
 
               {/* Individual Reviews */}
               <div className="space-y-6">
-                {dummyReviews.map((review) => (
-                  <div key={review.id} className="p-6 bg-gray-50 rounded-xl border border-gray-200">
+                {product?.rating?.map((review) => (
+                  <div key={review._id} className="p-6 bg-gray-50 rounded-xl border border-gray-200">
                     <div className="flex items-start justify-between mb-4">
                       <div>
                         <div className="flex items-center gap-3 mb-2">
-                          <h4 className="font-semibold text-gray-900">{review.author}</h4>
+                          <h4 className="font-semibold text-gray-900">{review.userId?.name}</h4>
                           {review.verified && (
                             <Badge className="bg-green-100 text-green-700 border-green-200 text-xs">
                               <Award className="w-3 h-3 mr-1" />
@@ -593,7 +593,7 @@ const ratingDistribution = [5,4,3,2,1].map((star) => {
                             ))}
                           </div>
                           <span className="text-sm text-gray-500">
-                            {new Date(review.date).toLocaleDateString('en-IN', {
+                            {new Date(review.createdAt).toLocaleDateString('en-IN', {
                               day: 'numeric',
                               month: 'short',
                               year: 'numeric'
@@ -603,7 +603,7 @@ const ratingDistribution = [5,4,3,2,1].map((star) => {
                       </div>
                     </div>
                     <h5 className="font-semibold text-gray-900 mb-2">{review.title}</h5>
-                    <p className="text-gray-700 leading-relaxed mb-4">{review.comment}</p>
+                    <p className="text-gray-700 leading-relaxed mb-4">{review.feedback}</p>
                     <div className="flex items-center gap-4 text-sm">
                       <button className="flex items-center gap-1 text-gray-600 hover:text-blue-600 transition-colors">
                         <ThumbsUp className="w-4 h-4" />

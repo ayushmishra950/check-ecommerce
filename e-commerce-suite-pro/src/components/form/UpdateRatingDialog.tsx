@@ -22,6 +22,7 @@ const UpdateRatingDialog = ({ isOpen, onOpenChange, initialData, setReviewsRefre
             setFormData({
                 productName: initialData?.productId?.name,
                 rating: initialData?.rating,
+                title:initialData?.title,
                 feedback: initialData?.feedback
             });
         }
@@ -83,13 +84,22 @@ const UpdateRatingDialog = ({ isOpen, onOpenChange, initialData, setReviewsRefre
                         </div>
                     </div>
                     <div className="grid gap-2">
-                        <Label htmlFor="review">Your Review</Label>
+                        <Label htmlFor="review">Title(Optional)</Label>
+                        <Input
+                            id="review"
+                            value={formData?.title}
+                            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                            placeholder="Update your title here..."
+                        />
+                    </div>
+                     <div className="grid gap-2">
+                        <Label htmlFor="review">Feedback</Label>
                         <Textarea
                             id="review"
                             value={formData?.feedback}
                             onChange={(e) => setFormData({ ...formData, feedback: e.target.value })}
                             placeholder="Update your review here..."
-                            className="min-h-[120px]"
+                            className="min-h-[80px]"
                         />
                     </div>
                 </form>

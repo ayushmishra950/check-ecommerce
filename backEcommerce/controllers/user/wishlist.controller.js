@@ -11,7 +11,7 @@ const Cart = require("../../models/cart.model");
 const getWishlist = async (req, res) => {
   try {
     const wishlist = await Wishlist.find({ user: req.user.id })
-      .populate({path:"product",populate:{path:"category"}});
+      .populate({path:"product",populate:{path:"category"}, populate:{path:"rating"}});
 
     res.status(200).json({
       success: true,

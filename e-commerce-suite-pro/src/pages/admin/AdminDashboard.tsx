@@ -5,7 +5,8 @@ import {
   Package,
   TrendingUp,
   TrendingDown,
-  ArrowUpRight
+  ArrowUpRight,
+  IndianRupee
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -20,6 +21,9 @@ import {
   BarChart,
   Bar,
 } from 'recharts';
+import {getDashboardSummary,getAllOrder,  getDashboardOverview} from "@/services/service";
+import { useEffect, useState } from 'react';
+import { resolve } from 'path/win32';
 
 const salesData = [
   { month: 'Jan', sales: 4000 },
@@ -49,85 +53,139 @@ const getStatusVariant = (status: string): "default" | "secondary" | "destructiv
 };
 
 const AdminDashboard = () => {
+  const [dashboardSummary,setDashboardSummary] = useState(null);
+  const [dashboardOverview, setDashboardOverview] = useState(null);
+   const [orderList, setOrderList] = useState([]);
+ 
+  const handleGetDashboardSummary = async() => {
+    try{
+     const res = await getDashboardSummary();
+     console.log(res)
+     if(res.status===200){
+      setDashboardSummary(res?.data?.data)
+     }
+    }
+    catch(err){
+      console.log(err);
+    }
+  }
+
+
+  const handleGetDashboardOverview = async() => {
+    try{
+     const res = await getDashboardOverview();
+     console.log(res);
+     if(res.status===200){
+      setDashboardOverview(res?.data?.data)
+     }
+    }
+    catch(err){
+      console.log(err);
+    }
+  }
+
+
+  const handleGetOrder = async() => {
+       try{
+         const res = await getAllOrder();
+         console.log(res)
+         if(res.status===200){
+          setOrderList(res.data?.data)
+         }
+       }
+       catch(err){
+        console.log(err);
+       }
+    }
+    useEffect(()=>{
+      handleGetOrder()
+    },[])
+
+
+  useEffect(()=>{
+    handleGetDashboardSummary();
+    handleGetDashboardOverview();
+    handleGetOrder();
+  }, [])
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Total Revenue</p>
-                <p className="text-2xl font-bold text-foreground mt-1">$54,239</p>
-                <div className="flex items-center gap-1 mt-2 text-primary">
-                  <TrendingUp className="h-4 w-4" />
-                  <span className="text-sm font-medium">+12.5%</span>
-                </div>
-              </div>
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <DollarSign className="h-6 w-6 text-primary" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Total Orders</p>
-                <p className="text-2xl font-bold text-foreground mt-1">1,429</p>
-                <div className="flex items-center gap-1 mt-2 text-primary">
-                  <TrendingUp className="h-4 w-4" />
-                  <span className="text-sm font-medium">+8.2%</span>
-                </div>
-              </div>
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <ShoppingCart className="h-6 w-6 text-primary" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Total Customers</p>
-                <p className="text-2xl font-bold text-foreground mt-1">3,842</p>
-                <div className="flex items-center gap-1 mt-2 text-primary">
-                  <TrendingUp className="h-4 w-4" />
-                  <span className="text-sm font-medium">+5.4%</span>
-                </div>
-              </div>
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <Users className="h-6 w-6 text-primary" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Total Products</p>
-                <p className="text-2xl font-bold text-foreground mt-1">284</p>
-                <div className="flex items-center gap-1 mt-2 text-destructive">
-                  <TrendingDown className="h-4 w-4" />
-                  <span className="text-sm font-medium">-2.1%</span>
-                </div>
-              </div>
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <Package className="h-6 w-6 text-primary" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+  <Card>
+    <CardContent className="p-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm text-muted-foreground">Total Revenue</p>
+          <p className="text-2xl font-bold text-foreground mt-1">₹{dashboardSummary?.revenue?.total}</p>
+          <div className="flex items-center gap-1 mt-2 text-primary">
+            <TrendingUp className="h-4 w-4" />
+            <span className="text-xs font-medium">This Month’s Revenue: ₹{dashboardSummary?.revenue?.currentMonth}</span>
+          </div>
+        </div>
+        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+          <IndianRupee className="h-6 w-6 text-primary" />
+        </div>
       </div>
+    </CardContent>
+  </Card>
+
+  <Card>
+    <CardContent className="p-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm text-muted-foreground">Total Orders</p>
+          <p className="text-2xl font-bold text-foreground mt-1">{dashboardSummary?.orders?.total}</p>
+          <div className="flex items-center gap-1 mt-2 text-primary">
+            <TrendingUp className="h-4 w-4" />
+            <span className="text-xs font-medium">Orders This Month: {dashboardSummary?.orders?.currentMonth}</span>
+          </div>
+        </div>
+        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+          <ShoppingCart className="h-6 w-6 text-primary" />
+        </div>
+      </div>
+    </CardContent>
+  </Card>
+
+  <Card>
+    <CardContent className="p-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm text-muted-foreground">Total Customers</p>
+          <p className="text-2xl font-bold text-foreground mt-1">{dashboardSummary?.customers?.total}</p>
+          <div className="flex items-center gap-1 mt-2 text-primary">
+            <TrendingUp className="h-4 w-4" />
+            <span className="text-xs font-medium">New Customers This Month: {dashboardSummary?.customers?.currentMonth}</span>
+          </div>
+        </div>
+        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+          <Users className="h-6 w-6 text-primary" />
+        </div>
+      </div>
+    </CardContent>
+  </Card>
+
+  <Card>
+    <CardContent className="p-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm text-muted-foreground">Total Products</p>
+          <p className="text-2xl font-bold text-foreground mt-1">{dashboardSummary?.products?.total}</p>
+          <div className="flex items-center gap-1 mt-2 text-destructive">
+            <TrendingDown className="h-4 w-4" />
+            <span className="text-xs font-medium">Products Added This Month: {dashboardSummary?.products?.currentMonth}</span>
+          </div>
+        </div>
+        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+          <Package className="h-6 w-6 text-primary" />
+        </div>
+      </div>
+    </CardContent>
+  </Card>
+</div>
 
       {/* Charts */}
-      <div className="grid lg:grid-cols-2 gap-6">
+      <div className="grid lg:grid-cols-1 gap-6">
         <Card>
           <CardHeader>
             <CardTitle>Sales Overview</CardTitle>
@@ -135,7 +193,7 @@ const AdminDashboard = () => {
           <CardContent>
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={salesData}>
+                <LineChart data={dashboardOverview}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
                   <YAxis stroke="hsl(var(--muted-foreground))" />
@@ -159,7 +217,7 @@ const AdminDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card>
+        {/* <Card>
           <CardHeader>
             <CardTitle>Monthly Revenue</CardTitle>
           </CardHeader>
@@ -182,7 +240,7 @@ const AdminDashboard = () => {
               </ResponsiveContainer>
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
 
       {/* Recent Orders */}
@@ -203,14 +261,14 @@ const AdminDashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {recentOrders.map((order) => (
-                  <tr key={order.id} className="border-b border-border last:border-0">
-                    <td className="py-3 px-4 text-sm font-medium text-foreground">{order.id}</td>
-                    <td className="py-3 px-4 text-sm text-muted-foreground">{order.customer}</td>
-                    <td className="py-3 px-4 text-sm font-medium text-foreground">${order.total}</td>
+                {orderList.slice(0,8).map((order) => (
+                  <tr key={order._id} className="border-b border-border last:border-0">
+                    <td className="py-3 px-4 text-sm font-medium text-foreground">ORD-{new Date().getFullYear()}-{order._id.slice(-4)}</td>
+                    <td className="py-3 px-4 text-sm text-muted-foreground">{order.user?.name}</td>
+                    <td className="py-3 px-4 text-sm font-medium text-foreground">₹{order.totalAmount}</td>
                     <td className="py-3 px-4">
-                      <Badge variant={getStatusVariant(order.status)}>
-                        {order.status}
+                      <Badge variant={getStatusVariant(order.orderStatus)}>
+                        {order.orderStatus}
                       </Badge>
                     </td>
                     <td className="py-3 px-4">

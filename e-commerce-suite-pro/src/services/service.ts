@@ -121,6 +121,19 @@ export const getAllBlockCustomerList = async () => {
 }
 
 
+export const getDashboardSummary = async () => {
+    const res = await api.get("/api/admin/dashboard/dashboardsummary");
+    return res;
+}
+
+
+
+export const getDashboardOverview = async () => {
+    const res = await api.get("/api/admin/dashboard/dashboardoverveiw");
+    return res;
+}
+
+
 
 // User Controllers for Only Users Not Admin==================================
 //===============================================================================

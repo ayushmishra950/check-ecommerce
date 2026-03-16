@@ -13,7 +13,7 @@ const addRating = async (req, res) => {
 
         for (const item of ratings) {
 
-            const { productId, rating, feedback } = item;
+            const { productId, rating, feedback, title } = item;
 
             const existingRating = await Rating.findOne({
                 userId,
@@ -26,7 +26,8 @@ const addRating = async (req, res) => {
                     productId,
                     userId,
                     rating,
-                    feedback
+                    feedback,
+                    title
                 });
 
                 createdRatings.push(newRating);
@@ -173,7 +174,8 @@ const updateRating = async (req, res) => {
             userId: req.user?.id,
             productId: obj.productId,
             rating: obj.rating,
-            feedback: obj.feedback
+            feedback: obj.feedback,
+            title:obj.title
         }
 
         const updatedRating = await Rating.findByIdAndUpdate(

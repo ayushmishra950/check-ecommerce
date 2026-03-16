@@ -379,14 +379,14 @@ const WishlistPage = () => {
                           key={i}
                           className={cn(
                             'w-4 h-4',
-                            i < Math.floor(item.product?.rating)
+                            i < Math.floor(item?.product?.rating?.length>0 ?item.product?.rating?.reduce((acc, r)=> acc + r.rating,0)/item?.product?.rating?.length : 0)
                               ? 'fill-yellow-400 text-yellow-400'
                               : 'text-gray-300'
                           )}
                         />
                       ))}
                       <span className="text-sm text-gray-600 ml-1">
-                        ({item.product?.rating})
+                        ({item?.product?.rating?.length>0 ?item.product?.rating?.reduce((acc, r)=> acc + r.rating, 0)/item?.product?.rating?.length : 0})
                       </span>
                     </div>
 

@@ -39,6 +39,7 @@ const RatingModal = ({
   const [ratings, setRatings] = useState<Record<string, number>>({});
   const [hover, setHover] = useState<Record<string, number>>({});
   const [feedbacks, setFeedbacks] = useState<Record<string, string>>({});
+  const [titles, setTitles] = useState<Record<string, string>>({});
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -77,6 +78,10 @@ const RatingModal = ({
     setFeedbacks((prev) => ({ ...prev, [productId]: value }));
   };
 
+  const handleTitle = (productId: string, value: string) => {
+    setTitles((prev) => ({ ...prev, [productId]: value }));
+  };
+
   const handleSubmit = async () => {
     setIsSubmitting(true);
 
@@ -85,6 +90,7 @@ const RatingModal = ({
         productId: product.product?._id,
         rating: ratings[product.product?._id] || 0,
         feedback: feedbacks[product.product?._id] || "",
+        title: titles[product?.product?._id] || "",
         userId: user?.id,
       })) || [];
 
@@ -202,6 +208,17 @@ const RatingModal = ({
                       </span>
 
                     </div>
+
+                    {/* Title */}
+                    <input
+                      type="text"
+                      value={titles[product?.product?._id] || ""}
+                      onChange={(e) =>
+                        handleTitle(product?.product?._id, e.target.value)
+                      }
+                      placeholder="Write review title..."
+                      className="w-full h-10 px-3 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 outline-none"
+                    />
 
                     {/* Feedback */}
                     <Textarea

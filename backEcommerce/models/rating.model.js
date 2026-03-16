@@ -25,6 +25,10 @@ const ratingSchema = new mongoose.Schema(
             min: 1,
             max: 5
         },
+        title:{
+        type:String,
+        trim:true
+        },
 
         feedback: {
             type: String,

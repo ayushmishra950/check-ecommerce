@@ -48,7 +48,7 @@ export const ProductCard = ({ product }) => {
     }
     catch (err) {
       console.log(err)
-      toast({ title: "Error Wishlist Product.", description: err?.message || err?.response?.data?.message, variant: "destructive" })
+      toast({ title: "Error Wishlist Product.", description: err?.response?.data?.message || err?.message, variant: "destructive" })
     }
   };
 

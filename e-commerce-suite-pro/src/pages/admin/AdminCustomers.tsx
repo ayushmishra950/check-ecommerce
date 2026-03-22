@@ -11,36 +11,8 @@ import {getAllCustomer, blockAndUnBlockCustomer, getAllBlockCustomerList} from "
 import {formatDate} from "@/services/allFunction";
 import {Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetOverlay, SheetPortal, SheetTitle, SheetTrigger,} from "@/components/ui/sheet";
 import { useToast } from '@/hooks/use-toast';
-
-const customers = [
-  {
-    id: '#CUST-001',
-    name: 'John Doe',
-    email: 'john@example.com',
-    orders: 5,
-    totalSpent: 1299.99,
-    status: 'active',
-    joined: '2023-12-10',
-  },
-  {
-    id: '#CUST-002',
-    name: 'Jane Smith',
-    email: 'jane@example.com',
-    orders: 2,
-    totalSpent: 349.99,
-    status: 'inactive',
-    joined: '2024-01-05',
-  },
-  {
-    id: '#CUST-003',
-    name: 'Mike Johnson',
-    email: 'mike@example.com',
-    orders: 8,
-    totalSpent: 2299.99,
-    status: 'active',
-    joined: '2023-11-22',
-  },
-];
+import { useAppDispatch, useAppSelector } from '@/redux-toolkit/hooks/hook';
+import { setCustomerList, setBlockCustomerList } from '@/redux-toolkit/slice/userSlice';
 
 const getStatusVariant = (
   status: string
@@ -61,8 +33,8 @@ const AdminCustomers = () => {
   const {toast} = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [customerList, setCustomerList] = useState([]);
-  const [blockCustomerList, setBlockCustomerList] = useState([]);
+  // const [customerList, setCustomerList] = useState([]);
+  // const [blockCustomerList, setBlockCustomerList] = useState([]);
   const [customerDetailOpen,setCustomerDetailOpen] = useState(false);
     const [blockDetailOpen,setBlockDetailOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
@@ -71,6 +43,9 @@ const AdminCustomers = () => {
 const [reason, setReason] = useState("");
 const[blockLoading, setBlockLoading] = useState(false);
 const currentDate = new Date().toISOString().split("T")[0];
+const dispatch = useAppDispatch();
+const customerList = useAppSelector((state)=> state?.user?.customerList);
+const blockCustomerList = useAppSelector((state)=> state?.user?.blockList);
 
   const filteredCustomers = customerList?.filter((customer) => {
     const matchesSearch =
@@ -107,7 +82,8 @@ const currentDate = new Date().toISOString().split("T")[0];
          const res = await getAllBlockCustomerList();
          console.log(res)
          if(res.status===200){
-          setBlockCustomerList(res?.data?.blockList);
+          // setBlockCustomerList(res?.data?.blockList);
+          dispatch(setBlockCustomerList(res?.data?.blockList));
           setBlockListRefresh(false);
          }
        }
@@ -116,17 +92,17 @@ const currentDate = new Date().toISOString().split("T")[0];
        }
     }
     useEffect(()=>{
-      if(blockListRefresh || blockCustomerList?.length === 0){
+      if( blockListRefresh){
       handleGetBlockCustomerList()
       }
-    },[blockListRefresh, blockCustomerList.length])
+    },[blockListRefresh])
   
     const handleGetCustomer = async() => {
        try{
          const res = await getAllCustomer();
          console.log(res)
          if(res.status===200){
-          setCustomerList(res?.data?.data)
+          dispatch(setCustomerList(res?.data?.data));
          }
        }
        catch(err){
@@ -134,10 +110,12 @@ const currentDate = new Date().toISOString().split("T")[0];
        }
     }
     useEffect(()=>{
+      if(customerList?.length===0 || blockListRefresh)
+     { 
       handleGetCustomer()
-    },[])
+     }
+    },[blockListRefresh, customerList?.length])
   
-  console.log(selectedCustomer)
   return (
     <>
     <div className="space-y-6">

@@ -44,17 +44,39 @@ const Category: React.FC = () => {
     }
   },[categories.length])
   return (
-    <div className="w-44 bg-white border border-gray-200 shadow-lg rounded-md">
-      {categories?.map((category) => (
-        <a
-          key={category._id}
-          onClick={()=>{navigate("/products", {state:{id:category?._id}})}}
-          className="block px-4 py-2 hover:bg-gray-100 transition capitalize cursor-pointer"
-        >
-          {category.name}
-        </a>
-      ))}
-    </div>
+    // <div className="w-44 bg-white border border-gray-200 shadow-lg rounded-md max-h-[200px] md:w-full md:max-h-[600px] overflow-y-auto">
+    //   {categories?.map((category) => (
+    //     <a
+    //       key={category._id}
+    //       onClick={()=>{navigate("/products", {state:{id:category?._id}})}}
+    //       className="block px-4 py-2 hover:bg-gray-100 transition capitalize cursor-pointer"
+    //     >
+    //       {category.name}
+    //     </a>
+    //   ))}
+    // </div>
+
+
+    <div className="w-74 bg-white border border-gray-200 shadow-lg rounded-md">
+
+  {/* 📱 Mobile Title */}
+  <div className="block md:hidden px-4 py-2 font-semibold border-b bg-gray-50">
+    Categories
+  </div>
+  <div className="max-h-[600px] md:w-full md:max-h-[600px] overflow-y-auto">
+  {categories?.map((category) => (
+    <a
+      key={category._id}
+      onClick={() => {
+        navigate("/products", { state: { id: category?._id } });
+      }}
+      className="block px-4 py-2 hover:bg-gray-100 transition capitalize cursor-pointer"
+    >
+      {category.name}
+    </a>
+  ))}
+  </div>
+</div>
   );
 };
 

@@ -8,12 +8,13 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from "@/redux-toolkit/store/store";
-import { decrementQuantity, incrementQuantity, removeFromCart } from '@/redux-toolkit/slice/cartSlice';
+import { decrementQuantity, incrementQuantity, removeFromCart, setCartList, setCartSummary } from '@/redux-toolkit/slice/cartSlice';
 import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { getCart, removeCart, clearCart, updateCart, addAndRemoveProductWishList } from "@/services/service";
 import { calculateDiscount } from "@/services/allFunction";
+import { useAppSelector } from '@/redux-toolkit/hooks/hook';
 
 // Recommended Products Dummy Data
 const recommendedProducts = [
@@ -52,18 +53,19 @@ const Cart = () => {
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
   const [discount, setDiscount] = useState(0);
   const [savedItems, setSavedItems] = useState<any[]>([]);
-  const [cartList, setCartList] = useState([]);
+  // const [cartList, setCartList] = useState([]);
   const [cartListRefresh, setCartListRefresh] = useState(false);
-  const [cartSummary, setCartSummary] = useState({
-    subtotal: 0,
-    tax: 0,
-    shipping: 0,
-    totalPrice: 0,
-    totalDiscount: 0,
-    taxBreakdown: [],
-    coupons : 0
-  });
-
+  // const [cartSummary, setCartSummary] = useState({
+  //   subtotal: 0,
+  //   tax: 0,
+  //   shipping: 0,
+  //   totalPrice: 0,
+  //   totalDiscount: 0,
+  //   taxBreakdown: [],
+  //   coupons : 0
+  // });
+  const cartList = useAppSelector((state)=>state?.cart?.cartList);
+   const cartSummary = useAppSelector((state)=> state?.cart?.cartSummary);
 
   const handleUpdateCart = async (id, quantity, type) => {
     try {
@@ -99,16 +101,26 @@ const Cart = () => {
       const res = await getCart();
       console.log(res);
       if (res.status === 200) {
-        setCartList(res?.data?.cart?.items);
-        setCartSummary({
-          subtotal: res?.data?.cart?.subtotal || 0,
+        dispatch(setCartList(res?.data?.cart?.items));
+        let obj = {
+           subtotal: res?.data?.cart?.subtotal || 0,
           tax: res?.data?.cart?.tax || 0,
           shipping: res?.data?.cart?.shipping || 0,
           totalPrice: res?.data?.cart?.totalPrice || 0,
           totalDiscount: res?.data?.cart?.totalDiscount || 0,
           taxBreakdown: res?.data?.cart?.taxBreakdown || [],
           coupons : res?.data?.cart?.coupons || 0
-        });
+        };
+        dispatch(setCartSummary(obj));
+        // setCartSummary({
+        //   subtotal: res?.data?.cart?.subtotal || 0,
+        //   tax: res?.data?.cart?.tax || 0,
+        //   shipping: res?.data?.cart?.shipping || 0,
+        //   totalPrice: res?.data?.cart?.totalPrice || 0,
+        //   totalDiscount: res?.data?.cart?.totalDiscount || 0,
+        //   taxBreakdown: res?.data?.cart?.taxBreakdown || [],
+        //   coupons : res?.data?.cart?.coupons || 0
+        // });
         setCartListRefresh(false);
       }
     }

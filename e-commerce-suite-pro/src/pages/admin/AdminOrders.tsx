@@ -13,6 +13,8 @@ import {orderStages, getStatusColorFromOrder} from "@/services/allFunction";
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { useAppDispatch,useAppSelector } from '@/redux-toolkit/hooks/hook';
+import { setOrderList } from '@/redux-toolkit/slice/orderSlice';
 
 
 const orders = [
@@ -29,13 +31,15 @@ const AdminOrders = () => {
   const {toast} = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [orderList, setOrderList] = useState([]);
+  // const [orderList, setOrderList] = useState([]);
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
   const [currentStatus, setCurrentStatus] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [orderId, setOrderId] = useState("");
   const [orderData, setOrderData] = useState(null);
   const [orderDialogOpen, setOrderDialogOpen] = useState(false);
+  const dispatch = useAppDispatch();
+  const orderList = useAppSelector((state)=> state?.order?.orderList);
 
   const filteredOrders = orderList.filter(order => {
     const matchesSearch = order._id.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -51,7 +55,8 @@ const AdminOrders = () => {
        const res = await getAllOrder();
        console.log(res)
        if(res.status===200){
-        setOrderList(res.data?.data)
+        // setOrderList(res.data?.data);
+        dispatch(setOrderList(res?.data?.data));
        }
      }
      catch(err){
@@ -59,8 +64,10 @@ const AdminOrders = () => {
      }
   }
   useEffect(()=>{
-    handleGetOrder()
-  },[])
+    if(orderList?.length === 0){
+ handleGetOrder()
+    }
+  },[orderList?.length])
 
   const handleUpdateOrderStatus = async(id?:string, status?:string)=>{
    const finalOrderId = id || orderId;

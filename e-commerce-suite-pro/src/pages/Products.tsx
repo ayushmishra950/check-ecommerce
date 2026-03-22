@@ -115,6 +115,7 @@ const Products = () => {
   };
 
   useEffect(() => {
+    console.log(id)
     if (productList.length === 0 || id) {
       handleGetProduct();
     }

@@ -9,22 +9,26 @@ import AddProductDialog from "@/components/form/AddProductDialog";
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { getProduct, deleteProduct, productStatus } from "@/services/service";
+import {setProductList} from "@/redux-toolkit/slice/productSlice";
 import DeleteModal from "@/card/DeleteModal";
 
 import { useNavigate } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from '@/redux-toolkit/hooks/hook';
 
 const AdminProducts = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
-  const [ProductList, setProductList] = useState<any>([]);
+  // const [ProductList, setProductList] = useState<any>([]);
   const [productListRefresh, setProductListRefresh] = useState<boolean>(false);
   const [productDialogOpen, setProductDialogOpen] = useState(false);
   const [initialData, setInitialData] = useState(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
+  const dispatch = useAppDispatch();
+  const ProductList = useAppSelector((state)=> state?.product?.productList);
 
   const filteredProducts = ProductList?.filter(product =>
     product.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -82,7 +86,7 @@ const AdminProducts = () => {
       const res = await getProduct(user?.shopId, user?.id);
       console.log(res);
       if (res.status === 200) {
-        setProductList(res.data.data);
+        dispatch(setProductList(res?.data?.data));
         setProductListRefresh(false);
       }
     }
@@ -93,8 +97,10 @@ const AdminProducts = () => {
   }
 
   useEffect(() => {
-    handleGetProduct();
-  }, [productListRefresh])
+    if(ProductList?.length===0 || productListRefresh){
+  handleGetProduct();
+    }
+  }, [productListRefresh, ProductList?.length])
 
   return (
     <>

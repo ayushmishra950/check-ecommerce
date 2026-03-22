@@ -9,6 +9,8 @@ import { addCategory, updateCategory, getCategory } from "@/services/service"
 import { useAuth } from "@/context/AuthContext"
 import { useToast } from "@/hooks/use-toast"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { setCategoryList } from "@/redux-toolkit/slice/categorySlice";
+import { useAppDispatch, useAppSelector } from "@/redux-toolkit/hooks/hook"
 
 const AddCategoryDialog = ({ isOpen, initialData, onClose, setCategoryListRefresh }) => {
   const { user } = useAuth()
@@ -17,9 +19,11 @@ const AddCategoryDialog = ({ isOpen, initialData, onClose, setCategoryListRefres
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState("active");
   const [loading, setLoading] = useState(false);
-  const [categoryList, setCategoryList] = useState<any>([])
+  // const [categoryList, setCategoryList] = useState<any>([])
   const isEdit = Boolean(initialData);
-
+  const dispatch = useAppDispatch();
+    const categoryList = useAppSelector((state) => state?.category?.categoryList);
+  
   const resetForm = () => {
     setName("");
     setDescription("");
@@ -69,7 +73,7 @@ const AddCategoryDialog = ({ isOpen, initialData, onClose, setCategoryListRefres
       let obj = { userId: user?.id, shopId: user?.shopId }
       try {
         const res = await getCategory(obj);
-        setCategoryList(res?.data?.data);
+        dispatch(setCategoryList(res.data.data));
       }
       catch (err) {
         console.log(err);
@@ -78,8 +82,10 @@ const AddCategoryDialog = ({ isOpen, initialData, onClose, setCategoryListRefres
     };
   
     useEffect(() => {
-      handleGetCategory();
-    }, []);
+      if(categoryList?.length===0){
+handleGetCategory();
+      }
+    }, [categoryList?.length]);
 
   if (!isOpen) return null
 

@@ -2,26 +2,34 @@ import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ProductCard } from '@/components/products/ProductCard';
-import { products } from '@/data/products';
 import { useToast } from '@/hooks/use-toast';
 import {getProductsByUsers} from "@/services/service";
 import { useEffect, useState } from 'react';
+import { useAppDispatch, useAppSelector } from '@/redux-toolkit/hooks/hook';
+import { setProductList } from '@/redux-toolkit/slice/productSlice';
 
 export const FeaturedProducts = () => {
   const {toast} = useToast();
-  const [featuredProducts, setFeaturedProducts] = useState([]);
+  // const [featuredProducts, setFeaturedProducts] = useState([]);
+  const dispatch  = useAppDispatch();
+  const featuredProducts = useAppSelector((state)=> state?.product?.productList);
   const handleGetProduct = async() => {
      try{
         const res = await getProductsByUsers();
-                setFeaturedProducts(res?.data?.data);
+        if(res.status===200){
+            // setFeaturedProducts(res?.data?.data);
+            dispatch(setProductList(res?.data?.data));
+        }
      }
      catch(err){
       toast({title:"Error Product.", description:err?.response?.data?.message|| err?.message, variant:"destructive"})
      }
   }
   useEffect(()=>{
-    handleGetProduct()
-  },[])
+    if(featuredProducts?.length===0){
+ handleGetProduct()
+    }
+  },[featuredProducts?.length])
 
   return (
     <section className="py-16 bg-background">

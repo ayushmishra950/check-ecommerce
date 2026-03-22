@@ -92,6 +92,7 @@ const AdminCategories = () => {
     let obj = { userId: user?.id, shopId: user?.shopId }
     try {
       const res = await getCategory(obj);
+      console.log(res);
       dispatch(setCategoryList(res.data.data));
       setCategoryListRefresh(false);
     }

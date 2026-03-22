@@ -8,15 +8,19 @@ import { Label } from '@/components/ui/label';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { getAdminData, updateAdminData } from "@/services/service";
+import { useAppDispatch, useAppSelector } from '@/redux-toolkit/hooks/hook';
+import { setSettingList } from '@/redux-toolkit/slice/settingSlice';
 
 const AdminSettings = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [storeSettings, setStoreSettings] = useState({ storeName: '', storeEmail: '', currency: '', taxPercentage: "0", shippingCharge: "0", freeShippingAbove: "0", });
-  const [userData, setUserData] = useState<any>(null);
+  // const [userData, setUserData] = useState<any>(null);
   const [profile, setProfile] = useState({ name: '', email: '' });
   const [security, setSecurity] = useState({ twoFactorAuth: true });
   const [notifications, setNotifications] = useState({ orderUpdates: true, newCustomers: true, lowStock: false });
+   const dispatch = useAppDispatch();
+   const userData = useAppSelector((state)=> state?.setting?.settingData);
 
   const handleUpdateProfile = async () => {
     if (!user?.id || !user?.shopId || !storeSettings?.storeName || !storeSettings?.currency || !profile?.name) return;
@@ -39,7 +43,8 @@ const AdminSettings = () => {
       const res = await getAdminData(user?.id, user?.shopId);
       console.log(res);
       if (res.status === 200) {
-        setUserData(res.data)
+        // setUserData(res.data);
+        dispatch(setSettingList(res?.data))
       }
     }
     catch (err) {
@@ -80,8 +85,10 @@ const AdminSettings = () => {
 
 
   useEffect(() => {
+    if(userData===null){
     handleGetUser();
-  }, [])
+    }
+  }, [userData])
 
   return (
     <div className="space-y-6">

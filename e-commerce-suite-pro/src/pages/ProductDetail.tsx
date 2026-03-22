@@ -11,6 +11,7 @@ import { addToCart, incrementQuantity, decrementQuantity } from '@/redux-toolkit
 import { useAppDispatch, useAppSelector } from '@/redux-toolkit/hooks/hook';
 import { calculateDiscount } from "@/services/allFunction";
 import { useAuth } from '@/context/AuthContext';
+import { setRelatedProduct, setSingleProduct } from '@/redux-toolkit/slice/productSlice';
 
 // Dummy Reviews Data
 const dummyReviews = [
@@ -63,7 +64,7 @@ const ProductDetail = () => {
   const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
   const [isWishlisted, setIsWishlisted] = useState(false);
-  const [product, setProduct] = useState(null);
+  // const [product, setProduct] = useState(null);
   // const { addToCart } = useCart();
   const [selectedImage, setSelectedImage] = useState<string | undefined>();
   const [showZoom, setShowZoom] = useState(false);
@@ -71,12 +72,14 @@ const ProductDetail = () => {
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [showShareMenu, setShowShareMenu] = useState(false);
-  const [relatedProducts, setRelatedProducts] = useState<any>([]);
+  // const [relatedProducts, setRelatedProducts] = useState<any>([]);
   const [showReply, setShowReply] = useState(false);
   const [replyMessage, setReplyMessage] = useState("");
   const [showReplyMessage, setShowReplyMessage] = useState(false);
   const dispatch = useAppDispatch();
   const items = useAppSelector((state) => state?.cart?.cartList);
+  const product = useAppSelector((state)=> state?.product?.singleProduct);
+  const relatedProducts = useAppSelector((state)=> state?.product?.relatedProduct);
 
   useEffect(() => {
     if (product?.images?.length > 0) {
@@ -102,14 +105,15 @@ const ProductDetail = () => {
   const handleGetProduct = async () => {
     try {
       const res = await getProductById(id);
+      console.log(res)
       if (res.status === 200) {
-        setProduct(res?.data?.data);
+        dispatch(setSingleProduct(res?.data?.data));
         const id = res.data.data?.category?._id;
         if (!id) return;
         const productData = await getProductByCategoryId(id);
         console.log(productData);
         if (productData.status === 200) {
-          setRelatedProducts(productData?.data?.data)
+          dispatch(setRelatedProduct(productData?.data?.data));
         }
 
 
@@ -121,7 +125,9 @@ const ProductDetail = () => {
   };
 
   useEffect(() => {
-    handleGetProduct();
+    if(product===null || relatedProducts?.length===0 || id){
+ handleGetProduct();
+    }
   }, [id]);
 
   const handleAddHelpful = async (id) => {

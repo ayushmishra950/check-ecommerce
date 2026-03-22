@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "@/redux-toolkit/store/store";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  Trash2,
+import { Trash2,
   ShoppingCart,
   Heart,
   Search,
@@ -27,7 +23,7 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { useAppDispatch, useAppSelector } from "@/redux-toolkit/hooks/hook";
 import { addToCart, removeFromCart } from '@/redux-toolkit/slice/cartSlice';
-import { addAndRemoveWishList } from '@/redux-toolkit/slice/wishListSlice';
+import { addAndRemoveWishList, setWishList } from '@/redux-toolkit/slice/wishListSlice';
 import { addAndRemoveProductWishList, getProductToWishlist, clearWishList,allMoveToCart, moveToCart } from "@/services/service";
 import { useAuth } from "@/context/AuthContext";
 
@@ -40,10 +36,8 @@ const WishlistPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<'name' | 'price-low' | 'price-high'>('name');
-  const wishlistItems = useAppSelector((state) => state?.wishList?.wishList);
-  const [wishlist, setWishList] = useState([]);
   const [wishListRefresh, setWishListRefresh] = useState(false);
-
+   const wishlist = useAppSelector((state)=> state?.wishList?.wishList);
 
   const handleGetProducts = async () => {
     try {
@@ -51,12 +45,12 @@ const WishlistPage = () => {
        console.log(res)
       if (res.status === 200) {
         setWishList(res.data?.data);
+        dispatch(setWishList(res?.data?.data));
         setWishListRefresh(false);
       }
     }
     catch (err) {
       console.log(err);
-
     }
   };
 
@@ -145,12 +139,21 @@ const WishlistPage = () => {
     }
     return 0;
   };
+  const totalValue = wishlist?.reduce((acc, item) => acc + item?.product?.price, 0);
+  const totalSavings = wishlist?.reduce((acc, item) => {
+  const price = item?.product?.price ?? 0;
+  const discountValue = item?.product?.discount ?? 0;
 
-  const totalValue = wishlistItems.reduce((acc, item) => acc + item.price, 0);
-  const totalSavings = wishlistItems.reduce((acc, item) => {
-    const original = item.price;
-    return acc + (original - item.price);
-  }, 0);
+  let saving = 0;
+
+  if (item?.product?.discountType === "percentage") {
+    saving = (price * discountValue) / 100;
+  } else {
+    saving = discountValue; // ✅ direct rupees discount
+  }
+
+  return acc + saving;
+}, 0) ?? 0;
 
   if (filteredItems?.length === 0) {
     return (

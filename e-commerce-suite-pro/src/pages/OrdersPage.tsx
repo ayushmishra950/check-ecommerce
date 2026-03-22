@@ -5,6 +5,8 @@ import { useToast } from "@/hooks/use-toast";
 import OrderProductDetailModal, { OrderProduct } from "@/card/OrderProductDetailModal";
 import {getStatusColorFromOrder} from "@/services/allFunction";
 import { Badge } from "@/components/ui/badge";
+import { useAppDispatch, useAppSelector } from "@/redux-toolkit/hooks/hook";
+import { setMyOrderList } from "@/redux-toolkit/slice/orderSlice";
 
 type OrderItem = {
   id: string;
@@ -249,11 +251,13 @@ const OrdersPage = () => {
   const [statusFilter, setStatusFilter] = useState("All");
   const [sortBy, setSortBy] = useState<"date-desc" | "date-asc" | "price-desc" | "price-asc">("date-desc");
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
-  const [orderList, setOrderList] = useState([]);
+  // const [orderList, setOrderList] = useState([]);
   const [orderListRefresh, setOrderListRefresh] = useState(false);
 
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<OrderProduct | undefined>(undefined);
+  const dispatch = useAppDispatch();
+  const orderList = useAppSelector((state)=> state?.order?.singleOrderList);
 
   const openProductModal = (order: any, item: any) => {
     const productData: OrderProduct = {
@@ -341,15 +345,9 @@ const OrdersPage = () => {
       const res = await getOrder();
       console.log(res);
       if (res.status === 200) {
-        setOrderList(res?.data?.updatedOrders);
-        // setCartSummary({
-        //   subtotal: res?.data?.cart?.subtotal || 0,
-        //   tax: res?.data?.cart?.tax || 0,
-        //   shipping: res?.data?.cart?.shipping || 0,
-        //   totalPrice: res?.data?.cart?.totalPrice || 0,
-        //   totalDiscount: res?.data?.cart?.totalDiscount || 0,
-        //   taxBreakdown: res?.data?.cart?.taxBreakdown || [],
-        // });
+        // setOrderList(res?.data?.updatedOrders);
+        dispatch(setMyOrderList(res?.data?.updatedOrders));
+  
         setOrderListRefresh(false);
       }
     }

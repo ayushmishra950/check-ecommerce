@@ -7,10 +7,12 @@ import {CartItem } from "@/types";
 }
  interface Carts {
     cartList: CartQuantity[];
+    cartSummary: any ;
 }
 
 const initialState: Carts = {
-    cartList: []
+    cartList: [],
+    cartSummary:null,
 };
 
 
@@ -48,9 +50,15 @@ const cartSlice = createSlice({
                 item.totalPrice = item.price * item.quantity;
             }
         },
+        setCartList: (state, action)=>{
+            state.cartList = action.payload;
+        },
+        setCartSummary: (state, action)=>{
+            state.cartSummary = action.payload;
+        }
 
     },
 });
 
-export const { addToCart, removeFromCart, clearCart, incrementQuantity, decrementQuantity } = cartSlice.actions;
+export const { addToCart, removeFromCart,setCartSummary, clearCart, incrementQuantity, decrementQuantity, setCartList } = cartSlice.actions;
 export default cartSlice.reducer;

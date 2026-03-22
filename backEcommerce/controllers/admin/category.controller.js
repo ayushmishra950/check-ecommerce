@@ -83,7 +83,7 @@ const getAllCategories = async (req, res) => {
       });
     }
 
-    const categories = await Category.find({shopId});
+    const categories = await Category.find({shopId}).sort({createdAt:-1});
 
     res.status(200).json({
       success: true,

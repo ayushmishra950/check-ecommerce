@@ -3,8 +3,10 @@ import { Smartphone, Shirt, Watch, Home, Dumbbell, Sparkles } from 'lucide-react
 import { Card, CardContent } from '@/components/ui/card';
 import { categories } from '@/data/products';
 import { useEffect, useState } from 'react';
-import {getCategoryByUsers} from "@/services/service";
+import { getCategoryByUsers } from "@/services/service";
 import { useToast } from '@/hooks/use-toast';
+import { useAppDispatch, useAppSelector } from '@/redux-toolkit/hooks/hook';
+import { setCategoryList } from '@/redux-toolkit/slice/categorySlice';
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Smartphone,
@@ -16,23 +18,28 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 };
 
 export const CategorySection = () => {
-    const [categoryList, setCategoryList] = useState([]);
-    const {toast} = useToast();
+  // const [categoryList, setCategoryList] = useState([]);
+  const dispatch = useAppDispatch();
+  const categoryList = useAppSelector((state) => state?.category?.categoryList);
+  const { toast } = useToast();
 
-     const handleGetCategory = async() => {
-         try{
-            const res = await getCategoryByUsers();
-            console.log(res?.data?.data)
-                    setCategoryList(res?.data?.data)
-         }
-         catch(err){
-          toast({title:"Error Category.", description:err?.response?.data?.message|| err?.message, variant:"destructive"})
-         }
-      }
-      useEffect(()=>{
-        handleGetCategory()
-      },[])
-  
+  const handleGetCategory = async () => {
+    try {
+      const res = await getCategoryByUsers();
+      console.log(res?.data?.data)
+      // setCategoryList(res?.data?.data);
+      dispatch(setCategoryList(res?.data?.data));
+    }
+    catch (err) {
+      toast({ title: "Error Category.", description: err?.response?.data?.message || err?.message, variant: "destructive" })
+    }
+  }
+  useEffect(() => {
+    if (categoryList?.length === 0) {
+      handleGetCategory()
+    }
+  }, [categoryList?.length])
+
   return (
     <section className="py-16 bg-muted/30">
       <div className="container mx-auto px-4">

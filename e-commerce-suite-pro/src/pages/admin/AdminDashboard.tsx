@@ -23,7 +23,9 @@ import {
 } from 'recharts';
 import {getDashboardSummary,getAllOrder,  getDashboardOverview} from "@/services/service";
 import { useEffect, useState } from 'react';
-import { resolve } from 'path/win32';
+import {setDashboardSummary, setDashboardOverview} from "@/redux-toolkit/slice/dashboardSlice";
+import {setOrderList} from "@/redux-toolkit/slice/orderSlice";
+import { useAppDispatch, useAppSelector } from '@/redux-toolkit/hooks/hook';
 
 const salesData = [
   { month: 'Jan', sales: 4000 },
@@ -53,22 +55,32 @@ const getStatusVariant = (status: string): "default" | "secondary" | "destructiv
 };
 
 const AdminDashboard = () => {
-  const [dashboardSummary,setDashboardSummary] = useState(null);
-  const [dashboardOverview, setDashboardOverview] = useState(null);
-   const [orderList, setOrderList] = useState([]);
+  // const [dashboardSummary,setDashboardSummary] = useState(null);
+  // const [dashboardOverview, setDashboardOverview] = useState(null);
+  //  const [orderList, setOrderList] = useState([]);
+   const dispatch = useAppDispatch();
+   const dashboardSummary = useAppSelector((state)=> state?.dashboard?.dashboardSummary);
+   const dashboardOverview = useAppSelector((state)=> state?.dashboard?.dashboardOverview);
+   const orderList = useAppSelector((state)=> state?.order?.orderList);
  
   const handleGetDashboardSummary = async() => {
     try{
      const res = await getDashboardSummary();
      console.log(res)
      if(res.status===200){
-      setDashboardSummary(res?.data?.data)
+      // setDashboardSummary(res?.data?.data);
+      dispatch(setDashboardSummary(res?.data?.data))
      }
     }
     catch(err){
       console.log(err);
     }
   }
+  useEffect(()=>{
+    if(dashboardSummary === null){
+      handleGetDashboardSummary();
+    }
+  },[dashboardSummary])
 
 
   const handleGetDashboardOverview = async() => {
@@ -76,13 +88,19 @@ const AdminDashboard = () => {
      const res = await getDashboardOverview();
      console.log(res);
      if(res.status===200){
-      setDashboardOverview(res?.data?.data)
+      // setDashboardOverview(res?.data?.data)
+      dispatch(setDashboardOverview(res?.data?.data));
      }
     }
     catch(err){
       console.log(err);
     }
   }
+  useEffect(()=>{
+        if(dashboardOverview===null){
+          handleGetDashboardOverview();
+        }
+  },[dashboardOverview])
 
 
   const handleGetOrder = async() => {
@@ -90,7 +108,8 @@ const AdminDashboard = () => {
          const res = await getAllOrder();
          console.log(res)
          if(res.status===200){
-          setOrderList(res.data?.data)
+          // setOrderList(res.data?.data)
+          dispatch(setOrderList(res?.data?.data));
          }
        }
        catch(err){
@@ -98,15 +117,12 @@ const AdminDashboard = () => {
        }
     }
     useEffect(()=>{
-      handleGetOrder()
-    },[])
+      if(orderList?.length===0){
+ handleGetOrder()
+      }
+    },[orderList?.length])
 
 
-  useEffect(()=>{
-    handleGetDashboardSummary();
-    handleGetDashboardOverview();
-    handleGetOrder();
-  }, [])
   return (
     <div className="space-y-6">
       {/* Stats Cards */}

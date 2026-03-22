@@ -25,6 +25,7 @@ import Checkout from "./pages/Checkout";
 import OrderSuccess from "./pages/OrderSuccess";
 import OrdersPage from "./pages/OrdersPage";
 import UserSettings from "./pages/UserSettings";
+import Category from "./pages/Category";
 // Admin Pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminProducts from "./pages/admin/AdminProducts";
@@ -69,6 +70,7 @@ const App = () => (
                 <Route path="/orderpage" element={<OrdersPage />} />
                 <Route path="/setting" element={<UserSettings />} />
                 <Route path="/reviewpage" element={<ReviewPage />} />
+                <Route path="/category" element={<Category />} />
               </Route>
 
               {/* Auth Routes */}

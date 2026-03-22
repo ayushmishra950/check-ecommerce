@@ -70,7 +70,7 @@ export const ProductCard = ({ product }) => {
   }
 
   
-    const handleGetProducts = async () => {
+    const handleGetWishlistProducts = async () => {
       try {
         const res = await getProductToWishlist();
         if (res.status === 200) {
@@ -87,7 +87,7 @@ export const ProductCard = ({ product }) => {
   
     useEffect(() => {
       if (wishListRefresh || wishList?.length===0){
-    handleGetProducts()
+    handleGetWishlistProducts()
       }
     }, [wishListRefresh, wishList?.length])
   

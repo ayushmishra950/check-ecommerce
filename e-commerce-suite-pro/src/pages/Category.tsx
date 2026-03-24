@@ -28,6 +28,7 @@ const Category: React.FC = () => {
   const handleGetCategory = async() => {
     try{
       const res = await getCategoryByUsers();
+      console.log(res)
       if(res.status === 200){
         dispatch(setCategoryList(res?.data?.data))
       }
@@ -39,7 +40,7 @@ const Category: React.FC = () => {
   }
 
   useEffect(()=>{
-    if(categories?.length===0 || user){
+    if(categories?.length===0){
  handleGetCategory()
     }
   },[categories.length])
@@ -63,7 +64,7 @@ const Category: React.FC = () => {
   <div className="block md:hidden px-4 py-2 font-semibold border-b bg-gray-50">
     Categories
   </div>
-  <div className="max-h-[600px] md:w-full md:max-h-[600px] overflow-y-auto">
+  <div className="max-h-[600px] md:w-full md:max-h-[200px] overflow-y-auto">
   {categories?.map((category) => (
     <a
       key={category._id}

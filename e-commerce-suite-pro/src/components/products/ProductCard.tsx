@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Product } from '@/types';
 import { cn } from '@/lib/utils';
 import { addToCart, removeFromCart } from '@/redux-toolkit/slice/cartSlice';
-import { addAndRemoveWishList } from '@/redux-toolkit/slice/wishListSlice';
+import { addAndRemoveWishList, setWishList } from '@/redux-toolkit/slice/wishListSlice';
 import { useAppDispatch, useAppSelector } from '@/redux-toolkit/hooks/hook';
 import { addAndRemoveProductWishList, getProductToWishlist, addCart } from "@/services/service";
 import { useAuth } from '@/context/AuthContext';
@@ -16,14 +16,14 @@ import { calculateDiscount } from "@/services/allFunction";
 
 
 export const ProductCard = ({ product }) => {
-  console.log(product)
   const { user } = useAuth();
   const { toast } = useToast();
   // const [isWishlisted, setIsWishlisted] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  const [wishList, setWishList] = useState([]);
+  // const [wishList, setWishList] = useState([]);
   const [wishListRefresh, setWishListRefresh] = useState(false);
   const dispatch = useAppDispatch();
+  const wishList = useAppSelector((state)=> state?.wishList?.wishList);
 
   // const wishList = useAppSelector((state) => state?.wishList?.wishList);
   const isWishlisted = Boolean(wishList?.find((v) => v?.product?._id === product?._id));
@@ -73,9 +73,11 @@ export const ProductCard = ({ product }) => {
     const handleGetWishlistProducts = async () => {
       try {
         const res = await getProductToWishlist();
+        console.log(res)
         if (res.status === 200) {
           console.log(res)
-          setWishList(res.data?.data);
+          // setWishList(res.data?.data);
+          setWishList(res?.data?.data);
           setWishListRefresh(false);
         }
       }

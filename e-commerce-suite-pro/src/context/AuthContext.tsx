@@ -123,7 +123,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           createdBy: response?.data?.admin?.createdBy
         }
         setUser(userInfo)
-        localStorage.setItem('user', JSON.stringify(userInfo))
+        localStorage.setItem('user', JSON.stringify(userInfo));
+        
         toast({ title: "Welcome back!.", description: response?.data?.message });
         return { success: true, user: userInfo };
       }

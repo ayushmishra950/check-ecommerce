@@ -105,6 +105,7 @@ const Products = () => {
   const handleGetProduct = async () => {
     try {
       const res = await (id ? getProductByCategoryId(id) : getProductsByUsers());
+      console.log(res)
       if (res.status === 200) {
         dispatch(setProductList(res?.data?.data));
       }
@@ -115,7 +116,6 @@ const Products = () => {
   };
 
   useEffect(() => {
-    console.log(id)
     if (productList.length === 0 || id) {
       handleGetProduct();
     }

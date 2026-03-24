@@ -11,10 +11,12 @@ import UpdateRatingDialog from "@/components/form/UpdateRatingDialog";
 import { formatDate } from "@/services/allFunction";
 import { useToast } from "@/hooks/use-toast";
 import DeleteModal from "@/card/DeleteModal";
+import { useAppDispatch, useAppSelector } from "@/redux-toolkit/hooks/hook";
+import { setReviewList } from "@/redux-toolkit/slice/reviewSlice";
 
 const ReviewPage: React.FC = () => {
     const { toast } = useToast();
-    const [reviews, setReviews] = useState<any[]>([]);
+    // const [reviews, setReviews] = useState<any[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [initialData, setInitialData] = useState<any>([]);
@@ -22,6 +24,8 @@ const ReviewPage: React.FC = () => {
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [isDeleteLoading, setIsDeleteLoading] = useState(false);
     const [deleteId, setDeleteId] = useState(null);
+    const dispatch = useAppDispatch();
+    const reviews = useAppSelector((state)=> state?.review?.reviewList);
 
     const filteredReviews = useMemo(() => {
         return reviews?.filter(r =>
@@ -57,16 +61,16 @@ const ReviewPage: React.FC = () => {
         const res = await getAllRating();
         console.log(res);
         if (res.status === 200) {
-            setReviews(res?.data?.data);
+            dispatch(setReviewList(res?.data?.data));
             setReviewsRefresh(false);
         }
     };
     console.log(deleteId)
 
     useEffect(() => {
-        // if (reviewsRefresh || reviews.length === 0) {
+        if (reviewsRefresh || reviews.length === 0) {
         handleGetReview();
-        // }
+        }
     }, [reviewsRefresh, reviews?.length]);
 
     return (

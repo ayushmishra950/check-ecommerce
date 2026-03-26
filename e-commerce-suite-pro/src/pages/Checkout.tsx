@@ -12,6 +12,7 @@ import { getCart, addOrder, getOrderById } from "@/services/service";
 import { calculateDiscount } from "@/services/allFunction";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import socket from "@/socket/socket";
 
 interface ShippingAddress {
   name: string;
@@ -125,6 +126,7 @@ const Checkout = () => {
       const res = await addOrder(shipping, "COD");
       console.log(res);
       if (res.status === 201) {
+        socket.emit("order");
         toast({
           title: "Success",
           description: res?.data?.message,

@@ -1,10 +1,10 @@
 
 
-import React, { createContext, useContext, useState, useCallback } from 'react'
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react'
 import { User } from '@/types'
 import { loginUser } from "@/services/service"
 import { useToast } from '@/hooks/use-toast'
-import socket from "@/socket/socket";
+import {connectSocket, disconnectSocket} from "@/socket/socket";
 
 type LoginResult = {
   success: boolean;
@@ -28,6 +28,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return storedUser ? JSON.parse(storedUser) : null
   })
 
+  // Hook to connect socket on initial load if user and token exist
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    if (user && token) {
+      connectSocket(token);
+    }
+  }, [user]);
+
   const login = useCallback(async (email: string, password: string): Promise<LoginResult> => {
     let obj = { email, password }
     try {
@@ -45,7 +53,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           shopId: response?.data?.admin?.shopId,
           createdBy: response?.data?.admin?.createdBy
         }
-        socket.emit("joinRoom", response?.data?.admin?._id);
+         connectSocket(accessToken);
         setUser(userInfo)
         localStorage.setItem('user', JSON.stringify(userInfo));
         
@@ -66,7 +74,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [])
 
   const logout = useCallback(() => {
-    setUser(null)
+    setUser(null);
+    disconnectSocket();
     localStorage.removeItem('user')
     localStorage.removeItem('accessToken');
     window.location.href = "/login"

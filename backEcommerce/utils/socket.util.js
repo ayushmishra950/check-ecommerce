@@ -1,4 +1,5 @@
 const { Server } = require("socket.io");
+const jwt = require("jsonwebtoken");
 
 let io;
 const initSocket = (server) => {
@@ -9,14 +10,12 @@ const initSocket = (server) => {
 
     io.use((socket, next) => {
         try {
-            const token = socket.handshake.auth?.token;
-
+            const token = socket.handshake.auth?.accessToken;
             if (!token) {
                 return next(new Error("Unauthorized"));
             }
 
             const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-
             socket.user = decoded;
             socket.userId = decoded.id;
 
@@ -24,25 +23,33 @@ const initSocket = (server) => {
 
             next();
         } catch (error) {
+            console.log("Socket Authentication Error:", error.message);
             return next(new Error("Invalid or expired token"));
         }
     });
 
 
     io.on("connection", (socket) => {
+        console.log("connected successfully.", socket.id)
         socket.on("joinRoom", (userId) => {
             socket.userId = userId;
             socket.join(userId);
 
         })
-        socket.on("addCart", (userId, product) => {
+        socket.on("addCart", (product) => {
             if (socket.userId) {
                 io.to(socket.userId).emit("addCart", product);
             }
         }),
-        socket.on("addAndRemovewishList", (product)=>{
-            console.log(socket?.userId, product)
-            if(socket.userId){
+            socket.on("order", () => {
+                if (socket.userId) {
+                    io.to(socket.userId).emit("order");
+                }
+            })
+
+        socket.on("addAndRemovewishList", (product) => {
+            console.log("product", product)
+            if (socket.userId) {
                 io.to(socket.userId).emit("addAndRemovewishList", product)
             }
         })

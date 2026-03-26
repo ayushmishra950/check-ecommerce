@@ -43,7 +43,7 @@ const WishlistPage = () => {
 
    useEffect(()=>{
     socket.on("addAndRemovewishList", (data)=>{
-      console.log(data)
+      console.log("data", data)
        dispatch(addAndRemoveWishList(data));
     });
 

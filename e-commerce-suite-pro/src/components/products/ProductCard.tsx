@@ -32,13 +32,13 @@ export const ProductCard = ({ product }) => {
     : 0;
 
   const handleAddAndRemoveWishlist = async (product) => {
+    console.log("product", product, "wishlist", wishList)
 
     const item = wishList.find((v) => v?.product?._id === product?._id);
     try {
       let res = null;
       res = await addAndRemoveProductWishList(product?._id);
     
-      console.log(res)
       if (res.status === 200 || res.status === 201) {
         socket.emit("addAndRemovewishList", product)
         setWishListRefresh(true)
@@ -46,7 +46,7 @@ export const ProductCard = ({ product }) => {
       }
     }
     catch (err) {
-      console.log(err)
+      console.log(err);
       toast({ title: "Error Wishlist Product.", description: err?.response?.data?.message || err?.message, variant: "destructive" })
     }
   };
@@ -59,7 +59,6 @@ export const ProductCard = ({ product }) => {
       if (res.status === 201) {
         toast({ title: "Add Item To Cart.", description: res?.data?.message })
         socket.emit("addCart",user?.id, product);
-        // dispatch(addToCart(product))
 
       }
     }
@@ -73,11 +72,9 @@ export const ProductCard = ({ product }) => {
     const handleGetWishlistProducts = async () => {
       try {
         const res = await getProductToWishlist();
-        console.log(res)
         if (res.status === 200) {
-          console.log(res)
           // setWishList(res.data?.data);
-          setWishList(res?.data?.data);
+          dispatch(setWishList(res?.data?.data));
           setWishListRefresh(false);
         }
       }

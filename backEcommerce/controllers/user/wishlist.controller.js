@@ -40,7 +40,6 @@ const getWishlist = async (req, res) => {
 
 const toggleWishlist = async (req, res) => {
   const { productId } = req.body;
-  console.log(productId)
   try {
     const userId = req.user?.id;
 
@@ -148,7 +147,6 @@ const clearWishlist = async (req, res) => {
 const moveToCart = async (req, res) => {
   try {
     const { productId, userId } = req.body;
-  console.log(req.body)
     if (!productId || !userId) {
       return res.status(400).json({ message: "ProductId and UserId are required" });
     }

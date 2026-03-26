@@ -15,7 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useAppDispatch,useAppSelector } from '@/redux-toolkit/hooks/hook';
 import { setOrderList } from '@/redux-toolkit/slice/orderSlice';
-
+import socket from '@/socket/socket';
 
 const orders = [
   { id: '#ORD-001', customer: 'John Doe', email: 'john@example.com', items: 3, total: 299.99, status: 'delivered', date: '2024-01-20' },
@@ -49,6 +49,15 @@ const AdminOrders = () => {
     const matchesStatus = statusFilter === 'all' || order.orderStatus === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  useEffect(()=>{
+     socket.on("order", ()=>{
+       handleGetOrder();
+     })
+     return () => {
+      socket.off("order");
+     }
+  },[])
 
   const handleGetOrder = async() => {
      try{

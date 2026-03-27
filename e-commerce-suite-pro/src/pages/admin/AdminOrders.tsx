@@ -52,9 +52,9 @@ const AdminOrders = () => {
   });
 
   useEffect(()=>{
-     socket.on("order", ()=>{
-      console.log("hiiii.....")
-      setOrderListRefresh(true);
+     socket.on("order", (product)=>{
+      console.log(product)
+      dispatch(setOrderList(product));
      })
      return () => {
       socket.off("order");

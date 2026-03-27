@@ -72,7 +72,6 @@ const Cart = () => {
 
   useEffect(() => {
     socket.on("addCart", (cart) => {
-      console.log("hiiiii")
       dispatch(addToCart(cart)); // pura cart replace karo
     });
 

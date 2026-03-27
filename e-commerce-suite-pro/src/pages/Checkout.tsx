@@ -104,7 +104,7 @@ const Checkout = () => {
       setShipping({...userAddressData, email:user?.email});
     }
   };
-  console.log(userAddressData, shipping)
+  console.log(cartList)
 
   // 🔹 Shipping input handler
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -126,7 +126,9 @@ const Checkout = () => {
       const res = await addOrder(shipping, "COD");
       console.log(res);
       if (res.status === 201) {
-        socket.emit("order");
+        socket.emit("order", {
+    cartItems: cartList
+});
         toast({
           title: "Success",
           description: res?.data?.message,

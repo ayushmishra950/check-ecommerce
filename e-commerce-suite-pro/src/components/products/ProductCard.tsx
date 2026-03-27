@@ -58,7 +58,8 @@ export const ProductCard = ({ product }) => {
       console.log(res)
       if (res.status === 201) {
         toast({ title: "Add Item To Cart.", description: res?.data?.message })
-        socket.emit("addCart",user?.id, product);
+        // socket.emit("addCart",user?.id, product);
+        socket.emit("order");
 
       }
     }

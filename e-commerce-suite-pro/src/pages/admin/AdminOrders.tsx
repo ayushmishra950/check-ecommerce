@@ -38,6 +38,7 @@ const AdminOrders = () => {
   const [orderId, setOrderId] = useState("");
   const [orderData, setOrderData] = useState(null);
   const [orderDialogOpen, setOrderDialogOpen] = useState(false);
+  const [orderListRefresh, setOrderListRefresh] = useState(false);
   const dispatch = useAppDispatch();
   const orderList = useAppSelector((state)=> state?.order?.orderList);
 
@@ -52,7 +53,8 @@ const AdminOrders = () => {
 
   useEffect(()=>{
      socket.on("order", ()=>{
-       handleGetOrder();
+      console.log("hiiii.....")
+      setOrderListRefresh(true);
      })
      return () => {
       socket.off("order");
@@ -66,6 +68,7 @@ const AdminOrders = () => {
        if(res.status===200){
         // setOrderList(res.data?.data);
         dispatch(setOrderList(res?.data?.data));
+        setOrderListRefresh(false);
        }
      }
      catch(err){
@@ -73,10 +76,10 @@ const AdminOrders = () => {
      }
   }
   useEffect(()=>{
-    if(orderList?.length === 0){
+    if(orderList?.length === 0 || orderListRefresh){
  handleGetOrder()
     }
-  },[orderList?.length])
+  },[orderList?.length, orderListRefresh])
 
   const handleUpdateOrderStatus = async(id?:string, status?:string)=>{
    const finalOrderId = id || orderId;

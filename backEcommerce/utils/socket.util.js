@@ -31,17 +31,18 @@ const initSocket = (server) => {
 
     io.on("connection", (socket) => {
         console.log("connected successfully.", socket.id)
-        socket.on("joinRoom", (userId) => {
-            socket.userId = userId;
-            socket.join(userId);
+        // socket.on("joinRoom", (userId) => {
+        //     socket.userId = userId;
+        //     socket.join(userId);
 
-        })
+        // })
         socket.on("addCart", (product) => {
             if (socket.userId) {
                 io.to(socket.userId).emit("addCart", product);
             }
         }),
             socket.on("order", () => {
+                
                 if (socket.userId) {
                     io.to(socket.userId).emit("order");
                 }

@@ -16,6 +16,7 @@ const paymentRoutes = require("./routes/user/payment.route");
 const productRoutes = require("./routes/user/product.route");
 const wishlistRoutes = require("./routes/user/wishlist.route");
 const ratingRoutes = require("./routes/user/rating.route");
+const shopRoutes = require("./routes/user/shop.route");
 
 // Admin k liye
 const adminAuthRoutes = require("./routes/admin/auth.route");
@@ -52,6 +53,7 @@ app.use("/api/user/payment", protect, paymentRoutes);
 app.use("/api/user/product", protect, productRoutes);
 app.use("/api/user/wishlist", protect, wishlistRoutes);
 app.use("/api/user/rating", protect, ratingRoutes);
+app.use("/api/user/shop", shopRoutes);
 
 //  Admin Routes
 app.use("/api/admin/auth", adminAuthRoutes);

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Search, Filter, Eye, MoreHorizontal, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from '@/components/ui/dropdown-menu';
@@ -17,16 +17,6 @@ import { useAppDispatch,useAppSelector } from '@/redux-toolkit/hooks/hook';
 import { setOrderList } from '@/redux-toolkit/slice/orderSlice';
 import socket from '@/socket/socket';
 import {connectSocket} from "@/socket/socket";
-
-const orders = [
-  { id: '#ORD-001', customer: 'John Doe', email: 'john@example.com', items: 3, total: 299.99, status: 'delivered', date: '2024-01-20' },
-  { id: '#ORD-002', customer: 'Jane Smith', email: 'jane@example.com', items: 1, total: 149.99, status: 'processing', date: '2024-01-19' },
-  { id: '#ORD-003', customer: 'Mike Johnson', email: 'mike@example.com', items: 2, total: 449.99, status: 'shipped', date: '2024-01-18' },
-  { id: '#ORD-004', customer: 'Sarah Wilson', email: 'sarah@example.com', items: 4, total: 199.99, status: 'pending', date: '2024-01-17' },
-  { id: '#ORD-005', customer: 'Tom Brown', email: 'tom@example.com', items: 1, total: 329.99, status: 'delivered', date: '2024-01-16' },
-  { id: '#ORD-006', customer: 'Emily Davis', email: 'emily@example.com', items: 2, total: 259.99, status: 'cancelled', date: '2024-01-15' },
-];
-
 
 const AdminOrders = () => {
   const {toast} = useToast();
@@ -57,8 +47,8 @@ const AdminOrders = () => {
      socket.on("order", (product)=>{
       console.log(product)
       setOrderListRefresh(true);
-     })
-
+     });
+    
      connectSocket(accessToken);
      return () => {
       socket.off("order");
@@ -96,6 +86,7 @@ const AdminOrders = () => {
       console.log(res);
       if(res.status===200){
         handleGetOrder();
+        socket.emit("orderStatusUpdate");
         toast({title:"Order Status Updated.", description:`${(id && status)?"Order Cancelled Successfully." : "Order Updated Successfully." }`})
       }
     }

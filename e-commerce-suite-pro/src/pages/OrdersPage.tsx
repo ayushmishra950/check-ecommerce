@@ -7,6 +7,7 @@ import {getStatusColorFromOrder} from "@/services/allFunction";
 import { Badge } from "@/components/ui/badge";
 import { useAppDispatch, useAppSelector } from "@/redux-toolkit/hooks/hook";
 import { setMyOrderList } from "@/redux-toolkit/slice/orderSlice";
+import socket from "@/socket/socket";
 
 type OrderItem = {
   id: string;
@@ -321,7 +322,6 @@ const OrdersPage = () => {
 
     return sorted;
   }, [orderList, searchTerm, statusFilter, sortBy]);
-  console.log(filteredAndSortedOrders)
 
   const toggleOrderDetails = (orderId: string) => {
     setExpandedOrderId(expandedOrderId === orderId ? null : orderId);
@@ -337,6 +337,17 @@ const OrdersPage = () => {
       Returned: dummyOrders.filter((o) => o.status === "Returned").length,
     };
   }, []);
+
+
+  useEffect(()=>{
+    socket.on("orderStatusUpdate", () => {
+      setOrderListRefresh(true);
+    });
+
+    return () =>{
+      socket.off("orderStatusUpdate");
+    }
+  },[])
 
 
 

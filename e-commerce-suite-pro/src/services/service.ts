@@ -1,7 +1,5 @@
 import api from "@/api/axios";
 
-const BASE_URL = import.meta.env.VITE_BACKEND_URL
-
 // Admin Controllers for Only Admin Not Users==================================
 //===============================================================================
 //===============================================================================
@@ -84,13 +82,13 @@ export const getAdminProductById = async (id: string) => {
 export const getAdminData = async (id: string, shopId: string) => {
     const res = await api.get(`/api/admin/auth/getbyid`, { params: { id, shopId } });
     return res;
-}
+};
 
 
 export const updateAdminData = async (id: string, shopId: string, storeSettings: any, profile: any) => {
     const res = await api.put(`/api/admin/auth/update`, { id, shopId, storeSettings, profile });
     return res;
-}
+};
 
 
 export const getAllOrder = async () => {
@@ -140,6 +138,11 @@ export const getDashboardOverview = async () => {
 //===============================================================================
 //===============================================================================
 
+
+export const getShopData = async() => {
+   const res = await api.get("/api/user/shop/get-shop");
+   return res;
+};
 
 
 export const getCategoryByUsers = async () => {

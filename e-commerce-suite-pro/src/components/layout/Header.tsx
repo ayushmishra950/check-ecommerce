@@ -1,44 +1,42 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import {
-  ShoppingCart,
-  Heart,
-  Search,
-  User,
-  Menu,
-  X,
-  LogOut,
-  Settings,
-  Package,
-  Gift
-} from 'lucide-react';
+import { ShoppingCart, Heart, Search, User, Menu, X, LogOut, Settings, Package, Gift} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { useCart } from '@/context/CartContext';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger} from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
 import Category from "@/pages/Category";
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux-toolkit/store/store';
 import DeleteModal from "@/card/DeleteModal";
+import { getShopData } from '@/services/service';
+import { useAppDispatch, useAppSelector } from '@/redux-toolkit/hooks/hook';
+import { setShopData } from '@/redux-toolkit/slice/shopSlice';
+import socket from "@/socket/socket";
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isOpenCard, setIsOpenCard] = useState(false);
+  const dispatch = useAppDispatch();
+  const shopData = useAppSelector((state)=> state?.shop?.shopData);
   // const { itemCount } = useCart();
   const { user, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const itemCount = useSelector((state: RootState) => state?.cart?.cartList?.length);
+
+  useEffect(()=>{
+    socket.on("shopRefresh", () => {
+      handleGetShopData();
+    });
+
+    return () =>{
+      socket.off("shopRefresh");
+    }
+  },[]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,6 +44,25 @@ export const Header = () => {
       navigate(`/products?search=${encodeURIComponent(searchQuery)}`);
     }
   };
+
+  const handleGetShopData = async() => {
+    try{
+        const res = await getShopData();
+        console.log(res);
+        if(res?.status === 200){
+            dispatch(setShopData(res?.data?.data));
+        };
+    }
+    catch(err){
+      console.log(err);
+    }
+  };
+
+  useEffect(()=>{
+    if(!shopData || Object.keys(shopData)?.length === 0){
+      handleGetShopData();
+    }
+  },[Object.keys(shopData)?.length])
 
   return (
     <>
@@ -56,9 +73,9 @@ export const Header = () => {
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2">
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-lg">S</span>
+                <span className="text-primary-foreground font-bold text-lg">{shopData?.name?.charAt(0) || 'S'}</span>
               </div>
-              <span className="font-bold text-xl text-foreground">ShopFlow</span>
+              <span className="font-bold text-xl text-foreground">{shopData?.name || 'ShopFlow'}</span>
             </Link>
 
             {/* Desktop Navigation */}

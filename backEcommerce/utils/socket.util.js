@@ -191,6 +191,10 @@ const initSocket = (server) => {
             });
         });
 
+        socket.on("shopRefresh", () => {
+            io.emit("shopRefresh");
+        })
+
         // ❌ Disconnect
         socket.on("disconnect", () => {
             console.log("❌ Disconnected:", socket.id);

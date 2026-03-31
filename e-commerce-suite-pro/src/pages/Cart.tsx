@@ -61,17 +61,10 @@ const Cart = () => {
   const cartSummary = useAppSelector((state) => state?.cart?.cartSummary);
   console.log(cartList);
 
-  //  useEffect(()=>{
-  //   socket.on("addCart", (data)=>{
-  //     dispatch(addToCart(data));
-  //   })
-
-  //   return () => socket.off("addCart")
-
-  //  },[])
 
   useEffect(() => {
     socket.on("addCart", (cart) => {
+      console.log("Cart updated via socket:", cart);
       dispatch(addToCart(cart)); // pura cart replace karo
     });
 

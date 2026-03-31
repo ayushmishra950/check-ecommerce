@@ -8,6 +8,7 @@ import orderReducer from "../slice/orderSlice";
 import dashboardReducer from "../slice/dashboardSlice";
 import settingReducer from "../slice/settingSlice";
 import reviewReducer from "../slice/reviewSlice";
+import shopReducer from "../slice/shopSlice";
 
 
 export const store = configureStore({
@@ -20,7 +21,8 @@ export const store = configureStore({
         order: orderReducer,
         dashboard:dashboardReducer,
         setting: settingReducer,
-        review: reviewReducer
+        review: reviewReducer,
+        shop: shopReducer,
     }
 })
 

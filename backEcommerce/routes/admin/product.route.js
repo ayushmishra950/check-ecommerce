@@ -57,8 +57,7 @@ const upload = require("../../cloudinary/upload");
  *       403:
  *         description: Access denied
  */
-router.post("/", upload.fields([
-    { name: "images", maxCount: 5 }]), createProduct);
+router.post("/", upload.fields([ { name: "images", maxCount: 5 }]), createProduct);
 
 /**
  * @swagger

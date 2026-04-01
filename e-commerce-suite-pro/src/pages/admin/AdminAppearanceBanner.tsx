@@ -11,37 +11,40 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import AddBannerDialog from "@/components/form/AddBannerDialog";
+import {getAllBanners} from "@/services/service";
 
 const AdminAppearanceBanner = () => {
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
   const [searchQuery, setSearchQuery] = useState("");
   const [bannerList, setBannerList] = useState<any[]>([]);
   const [bannerDialogOpen, setBannerDialogOpen] = useState(false);
   const [initialData, setInitialData] = useState(null);
   const [bannerListRefresh, setBannerListRefresh] = useState(false);
 
-  // Dummy data (API se replace kar lena)
-  useEffect(() => {
-    setBannerList([
-      {
-        _id: "1",
-        title: "Summer Sale",
-        image: "/banner1.jpg",
-        isActive: true,
-        createdAt: new Date(),
-      },
-      {
-        _id: "2",
-        title: "New Arrivals",
-        image: "/banner2.jpg",
-        isActive: false,
-        createdAt: new Date(),
-      },
-    ]);
-  }, []);
-
+  
   const filteredBanners = bannerList.filter((banner) =>
     banner.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+
+  const handleGetAllBanners = async () => {
+    if(!user?.shopId) return;
+    try {
+      const res = await getAllBanners(user?.shopId);
+      console.log(res.data);
+      if(res.status === 200){
+        setBannerList(res?.data?.data || []);
+      }
+    } catch (error) {
+      console.error("Error fetching banners:", error);
+    }
+  };
+
+  useEffect(() => {
+    if(bannerList?.length===0 || bannerListRefresh){
+    handleGetAllBanners();
+    }
+  }, [bannerListRefresh]);
 
   return (
     <>
@@ -65,7 +68,7 @@ const AdminAppearanceBanner = () => {
           />
         </div>
 
-        <Button className="ml-auto" onClick={()=>{setBannerDialogOpen(true)}}>
+        <Button className="ml-auto" onClick={()=>{setInitialData(null); setBannerDialogOpen(true)}}>
           + Add Banner
         </Button>
       </div>
@@ -131,7 +134,7 @@ const AdminAppearanceBanner = () => {
                         </DropdownMenuTrigger>
 
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem className="cursor-pointer">
+                          <DropdownMenuItem className="cursor-pointer" onClick={() => {setInitialData(banner); setBannerDialogOpen(true)}}>
                             <Edit className="h-4 w-4 mr-2" />
                             Edit Banner
                           </DropdownMenuItem>

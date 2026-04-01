@@ -56,7 +56,7 @@ const AddBannerDialog = ({ isOpen, initialData, onClose, setBannerListRefresh })
 
     const formData = new FormData();
     formData.append("title", title);
-    formData.append("isActive", status === "active");
+    formData.append("isActive", status);
     formData.append("userId", user?.id);
     formData.append("shopId", user?.shopId);
 
@@ -64,14 +64,10 @@ const AddBannerDialog = ({ isOpen, initialData, onClose, setBannerListRefresh })
       formData.append("image", imageFile); // backend me multer handle karega
     }
 
-    if (isEdit) {
-      formData.append("id", initialData?._id);
-    }
-
     try {
       let res;
       if (isEdit) {
-        res = await updateBanner(formData);
+        res = await updateBanner(initialData?._id, formData);
       } else {
         res = await addBanner(formData);
       }

@@ -139,14 +139,14 @@ export const addBanner = async (obj: any) => {
 }
 
 
-export const getAllBanners = async () => {
-    const res = await api.get("/api/admin/banner/get");
+export const getAllBanners = async (shopId: string) => {
+    const res = await api.get("/api/admin/banner/get", { params: { shopId } });
     return res;
 }
 
 
-export const updateBanner = async (obj: any) => {
-    const res = await api.put("/api/admin/banner/update", obj);
+export const updateBanner = async (id:string,obj: any) => {
+    const res = await api.put(`/api/admin/banner/update/${id}`, obj);
     return res;
 }
 

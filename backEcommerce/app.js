@@ -83,8 +83,17 @@ app.use("/api/admin/banner", protect, adminBannerRoutes);
 app.use("/api/superadmin/shop", superAdminShopRoute);
 
 
+
+// app.use(express.static(path.join(__dirname, "build")));
+
+// // ⚡ SPA fallback (MOST IMPORTANT)
+// app.get("/*", (req, res) => {
+//   res.sendFile(path.join(__dirname, "build", "index.html"));
+// });
+
+
 // Default route
-app.get("/", (req, res) => {
+app.get("/server", (req, res) => {
   res.send("API is running");
 });
 
@@ -100,7 +109,6 @@ app.get('/auth/google/callback',
     }
 );
 
-app.use(express.static(path.join(__dirname, "build")))
 
 // Test route
 app.get('/dashboard', (req, res) => {
@@ -111,8 +119,21 @@ app.get('/dashboard', (req, res) => {
     }
 });
 
-app.get('/login', (req, res) => {
-    res.send('<a href="/auth/google"><button>Login with Google</button></a>');
+// app.get('/login', (req, res) => {
+//     res.send('<a href="/auth/google"><button>Login with Google</button></a>');
+// });
+
+
+// ✅ Static
+app.use(express.static(path.join(__dirname, "build")));
+
+// ✅ FINAL fallback (last line before error handler)
+app.use((req, res, next) => {
+  if (req.path.startsWith("/api") || req.path.startsWith("/auth")) {
+    return next();
+  }
+
+  res.sendFile(path.join(__dirname, "build", "index.html"));
 });
 
 

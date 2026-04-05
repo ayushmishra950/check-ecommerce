@@ -62,7 +62,7 @@ const App = () => (
             <Routes>
               {/* User Routes */}
               <Route element={<UserLayout />}>
-                <Route path="/" element={<Index />} />
+                <Route path="/" element={<HomeRoute />} />
                 <Route path="/login-success" element={<LoginSuccess />} />
                 <Route path="/products" element={<Products />} />
                 <Route path="/product/:id" element={<ProductDetail />} />

@@ -9,6 +9,7 @@ const {initSocket} = require("./utils/socket.util");
 const session = require('express-session');
 const passport = require('./validations/auth.validation');
 const path = require("path");
+const {generateAccessToken} = require("./utils/jwt.util");
 
 
 // user k liye
@@ -102,25 +103,43 @@ app.get('/auth/google',
     passport.authenticate('google', { scope: ['profile', 'email'] })
 );
 
+// app.get('/auth/google/callback',
+//     passport.authenticate('google', { failureRedirect: '/login' }),
+//     (req, res) => {
+//         res.redirect(`http://localhost:8080/login-success?token=${token}`); // login ke baad
+//     }
+// );
+
+
+
 app.get('/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/login' }),
     (req, res) => {
-        res.redirect('/dashboard'); // login ke baad
+        const user = req.user; 
+        
+        // Structure the payload for JWT
+        const payload = {
+            id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            profileImage: user.profileImage
+        };
+
+        const token = generateAccessToken(payload); 
+
+        res.redirect(`http://localhost:8080/login-success?token=${token}`);
     }
 );
 
 
 // Test route
-app.get('/dashboard', (req, res) => {
-    if (req.isAuthenticated()) {
-         res.sendFile(path.join(__dirname, "build", "index.html"));
-    } else {
-        res.redirect('/login');
-    }
-});
-
-// app.get('/login', (req, res) => {
-//     res.send('<a href="/auth/google"><button>Login with Google</button></a>');
+// app.get('/dashboard', (req, res) => {
+//     if (req.isAuthenticated()) {
+//          res.sendFile(path.join(__dirname, "build", "index.html"));
+//     } else {
+//         res.redirect('/login');
+//     }
 // });
 
 

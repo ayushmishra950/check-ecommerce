@@ -108,7 +108,7 @@ const handleSubmit = async (e: React.FormEvent) => {
           <div className="mt-6 space-y-4">
 
   {/* Google Sign In */}
-  <Button
+  {/* <Button
     variant="outline"
     className="w-full flex items-center justify-center gap-2"
    onClick={() => {
@@ -121,7 +121,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       className="h-4 w-4"
     />
     Sign in with Google
-  </Button>
+  </Button> */}
 
   {/* Divider */}
   <div className="flex items-center gap-2">

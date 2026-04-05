@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { HashRouter, BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
 
@@ -26,6 +26,7 @@ import OrderSuccess from "./pages/OrderSuccess";
 import OrdersPage from "./pages/OrdersPage";
 import UserSettings from "./pages/UserSettings";
 import Category from "./pages/Category";
+import LoginSuccess from "@/token/LoginSuccess";
 // Admin Pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminProducts from "./pages/admin/AdminProducts";
@@ -57,11 +58,12 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          <BrowserRouter>
+          <HashRouter>
             <Routes>
               {/* User Routes */}
               <Route element={<UserLayout />}>
-                <Route path="/" element={<HomeRoute />} />
+                <Route path="/" element={<Index />} />
+                <Route path="/login-success" element={<LoginSuccess />} />
                 <Route path="/products" element={<Products />} />
                 <Route path="/product/:id" element={<ProductDetail />} />
                 <Route path="/cart" element={<Cart />} />
@@ -107,7 +109,7 @@ const App = () => (
               {/* Catch-all */}
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </BrowserRouter>
+          </HashRouter>
         </TooltipProvider>
       </CartProvider>
     </AuthProvider>

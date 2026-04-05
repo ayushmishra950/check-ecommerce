@@ -15,6 +15,7 @@ interface AuthContextType {
   user: User | null
   login: (email: string, password: string) => Promise<LoginResult>
   logout: () => void
+  setAuth: (user: User, token: string) => void
   isAuthenticated: boolean
 }
 
@@ -35,6 +36,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       connectSocket(token);
     }
   }, [user]);
+
+  const setAuth = useCallback((userInfo: User, token: string) => {
+    localStorage.setItem('accessToken', token)
+    localStorage.setItem('user', JSON.stringify(userInfo));
+    connectSocket(token);
+    setUser(userInfo)
+  }, []);
 
   const login = useCallback(async (email: string, password: string): Promise<LoginResult> => {
     let obj = { email, password }
@@ -82,7 +90,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [])
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!user }}>
+    <AuthContext.Provider value={{ user, login, logout, setAuth, isAuthenticated: !!user }}>
       {children}
     </AuthContext.Provider>
   )

@@ -58,7 +58,7 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          <HashRouter>
+          <BrowserRouter>
             <Routes>
               {/* User Routes */}
               <Route element={<UserLayout />}>
@@ -109,7 +109,7 @@ const App = () => (
               {/* Catch-all */}
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </HashRouter>
+          </BrowserRouter>
         </TooltipProvider>
       </CartProvider>
     </AuthProvider>
